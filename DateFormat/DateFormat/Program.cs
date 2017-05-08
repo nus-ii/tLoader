@@ -15,9 +15,8 @@ namespace DateFormat
     {
         static void Main(string[] args)
         {
-
             var profile = BookProfile.GetProfile(BookProfileType.T2);
-            String dbCardFileName = "";
+            string dbCardFileName = "";
             string dbReaderFileName = "";
             WaitReaderConnection(profile,ref dbCardFileName,ref dbReaderFileName);
 
@@ -46,11 +45,17 @@ namespace DateFormat
             {
                 var item = AnnotationItem.GetItem(r, profile);
                 AnnotationList.Add(item);
-                Console.WriteLine(item.ToCSVstring());
             }
 
-            List<string> anList = GetListAn(AnnotationList);
-            var res = GetSource(anList, ref logList);
+            PrintAnnotation(AnnotationList);
+
+            Console.WriteLine(string.Format("Annotation count: {0}",AnnotationList.Count));
+            Console.ReadLine();
+
+            List<string> res = new List<string>();
+            res.Add("<div dir=\"ltr\" style=\"text - align: left; \" trbidi=\"on\">");
+            res.AddRange(GetSource(AnnotationList, ref logList));
+            res.Add("<br /></div>");
 
             var dn = DateTime.Now;
             string ps = string.Format("{0}_{1}_{2}_{3}-{4}.txt", dn.Day, dn.Month, dn.Year, dn.Hour, dn.Minute);
@@ -61,6 +66,15 @@ namespace DateFormat
             Console.ReadLine();
 
         }
+
+        private static void PrintAnnotation(List<AnnotationItem> annotationList)
+        {
+            foreach(var item in annotationList)
+            {
+                Console.WriteLine(item.ToCSVstring());
+            }
+        }
+
         private static void WaitReaderConnection(BookProfile profile, ref string dbA,ref string dbB)
         {
             while(!GetFilePath(profile,ref dbA,ref dbB))
@@ -69,18 +83,10 @@ namespace DateFormat
                 Console.WriteLine("Reader not found!");
                 System.Threading.Thread.Sleep(250);
             }
+            System.Threading.Thread.Sleep(250);
             Console.Clear();
             Console.WriteLine("Reader ready for work, press any key!");
             Console.ReadLine();
-        }
-        private static List<string> GetListAn(List<AnnotationItem> annotationList)
-        {
-            List<string> result = new List<string>();
-            foreach (var i in annotationList)
-            {
-                result.Add(i.ToString());
-            }
-            return result;
         }
 
         private static bool GetFilePath(BookProfile profile, ref string card, ref string reader)
@@ -111,8 +117,6 @@ namespace DateFormat
             }
         }
 
-
-
         private static string[] GetArray(List<string> logList)
         {
             string[] result = new string[logList.Count];
@@ -135,30 +139,20 @@ namespace DateFormat
             return result;
         }
 
-        private static List<string> GetSource(List<string> sourceData, ref List<string> log)
+        private static List<string> GetSource(List<AnnotationItem> sourceData, ref List<string> log)
         {
             List<string> result = new List<string>();
             foreach (var s in sourceData)
             {
-                var t = s.ToLower();
+                var t = s.markedText.ToLower().Trim();
 
-                if (!ListContainValue(result, t) && !log.Contains(t))
+                if (!result.Contains(t) && !log.Contains(t))
                 {
-                    result.Add(GetHTMLstring(t));
+                    result.Add(s.ToHTMLstring());
                     log.Add(t);
                 }
             }
             return result;
-        }
-
-        private static string GetHTMLstring(string t)
-        {
-            return string.Concat("<p>", t, "</p>");
-        }
-
-        private static bool ListContainValue(List<string> result, string t)
-        {
-            return result.Contains(t);
-        }
+        }               
     }
 }

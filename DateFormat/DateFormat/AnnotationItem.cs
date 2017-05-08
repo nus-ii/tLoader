@@ -10,7 +10,7 @@ namespace DateFormat
      public class AnnotationItem
     {
         public string markedText;
-        public string addedDate;
+        public string addedDate;       
 
         internal static AnnotationItem GetItem(DataRow r, BookProfile profile)
         {
