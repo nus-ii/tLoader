@@ -69,6 +69,7 @@
     <Compile Include="AnnotationItem.cs" />
     <Compile Include="AnnotatioProfile.cs" />
     <Compile Include="BookProfile.cs" />
+    <Compile Include="HtmlMaster.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="uHelper.cs" />

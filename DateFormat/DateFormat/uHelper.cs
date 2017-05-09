@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DateFormat
 {
-    public class uHelper
+    public class UHelper
     {
-        public static DateTime uDateFormat(string target)
+        public static DateTime UDateFormat(string target)
         {
             DateTime result = new DateTime();
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);

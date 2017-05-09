@@ -20,7 +20,7 @@ namespace DateFormat
             string dbReaderFileName = "";
             WaitReaderConnection(profile,ref dbCardFileName,ref dbReaderFileName);
 
-            string basePath = Environment.CurrentDirectory;// @"C:\MyTempBook\";
+            string basePath = Environment.CurrentDirectory;
             string logPath = Path.Combine(basePath, "Log.txt");
             var log = File.ReadAllLines(logPath);
             List<string> logList = GetList(log);
@@ -39,26 +39,25 @@ namespace DateFormat
             adapter.Fill(dTable);
             #endregion
 
-            List<AnnotationItem> AnnotationList = new List<AnnotationItem>();
+            List<AnnotationItem> annotationList = new List<AnnotationItem>();
 
             foreach (DataRow r in dTable.Rows)
             {
                 var item = AnnotationItem.GetItem(r, profile);
-                AnnotationList.Add(item);
+                annotationList.Add(item);
             }
 
-            PrintAnnotation(AnnotationList);
+            PrintAnnotation(annotationList);
 
-            Console.WriteLine(string.Format("Annotation count: {0}",AnnotationList.Count));
+            Console.WriteLine($"Annotation number: {annotationList.Count}");
             Console.ReadLine();
 
-            List<string> res = new List<string>();
-            res.Add("<div dir=\"ltr\" style=\"text - align: left; \" trbidi=\"on\">");
-            res.AddRange(GetSource(AnnotationList, ref logList));
-            res.Add("<br /></div>");
+	        var filtredData = GetSource(annotationList, ref logList);
+	        var res = HtmlMaster.GetHtmlList(filtredData);
+	
 
             var dn = DateTime.Now;
-            string ps = string.Format("{0}_{1}_{2}_{3}-{4}.txt", dn.Day, dn.Month, dn.Year, dn.Hour, dn.Minute);
+            string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}.txt";
             string resultPath = Path.Combine(basePath,ps);
             File.WriteAllLines(resultPath, res);
             File.WriteAllLines(logPath, GetArray(logList));
@@ -71,7 +70,7 @@ namespace DateFormat
         {
             foreach(var item in annotationList)
             {
-                Console.WriteLine(item.ToCSVstring());
+                Console.WriteLine(item.ToCsvString());
             }
         }
 
@@ -144,11 +143,11 @@ namespace DateFormat
             List<string> result = new List<string>();
             foreach (var s in sourceData)
             {
-                var t = s.markedText.ToLower().Trim();
+                var t = s.MarkedText.ToLower().Trim();
 
                 if (!result.Contains(t) && !log.Contains(t))
                 {
-                    result.Add(s.ToHTMLstring());
+                    result.Add(s.MarkedText);
                     log.Add(t);
                 }
             }

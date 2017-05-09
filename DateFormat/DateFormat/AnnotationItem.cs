@@ -9,35 +9,35 @@ namespace DateFormat
 {
      public class AnnotationItem
     {
-        public string markedText;
-        public string addedDate;       
+        public string MarkedText;
+        public string AddedDate;       
 
         internal static AnnotationItem GetItem(DataRow r, BookProfile profile)
         {
             AnnotationItem result = new AnnotationItem();
-            result.markedText = r.ItemArray[profile.Annotation.markedText].ToString();
-            result.addedDate = r.ItemArray[profile.Annotation.addedDate].ToString();
+            result.MarkedText = r.ItemArray[profile.Annotation.MarkedText].ToString();
+            result.AddedDate = r.ItemArray[profile.Annotation.AddedDate].ToString();
             return result;
         }
 
-        public string ToCSVstring()
+        public string ToCsvString()
         {
             string result="";
-            result = string.Concat(markedText,";",uHelper.uDateFormat(addedDate).ToString());
+            result = string.Concat(MarkedText,";",UHelper.UDateFormat(AddedDate).ToString());
             return result;
         }
 
-        public string ToHTMLstring()
+        public string ToHtmlString()
         {
             string result = "";
-            result = markedText.Trim().ToLower();
+            result = MarkedText.Trim().ToLower();
             result = string.Concat("<p>",result, "</p>");
             return result;
         }
 
         public override string ToString()
         {
-            return markedText.Trim().ToLower();
+            return MarkedText.Trim().ToLower();
         }
     }
 }
