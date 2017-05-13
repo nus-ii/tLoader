@@ -9,9 +9,10 @@ namespace DateFormat
     public enum BookProfileType {T2 }
     public class BookProfile
     {
-        public BookProfileType BookType;
-        public AnnotationProfile Annotation;
-        public string bookDbPath;
+        public BookProfileType BookType { get; set; }
+        public AnnotationProfile Annotation { get; set; }
+        public string bookDbPath { get; set; }
+        public string readerDriveLabel { get; set; }
 
 
         public static BookProfile GetProfile(BookProfileType targetType)
@@ -22,6 +23,7 @@ namespace DateFormat
                 result.BookType = targetType;
                 result.Annotation = AnnotationProfile.GetProfile(targetType);
                 result.bookDbPath = @"Sony_Reader\database\books.db";
+                result.readerDriveLabel = "READER";
             }
             return result;
         }

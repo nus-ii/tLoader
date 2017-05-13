@@ -12,10 +12,10 @@ namespace DateFormat
 		{
 			var dt = DateTime.Now;
 			string dateFormated=String.Format($"{dt.Day}-{dt.Month}-{dt.Year}_{dt.Hour}:{dt.Minute}");
-			List<string> res = new List<string>();
-			res.Add(string.Concat("<p>", dateFormated, "</p>"));
+			List<string> res = new List<string>();			
 			res.Add("<div dir=\"ltr\" style=\"text - align: left; \" trbidi=\"on\">");
-			res.AddRange(data.Select(s=>string.Concat("<p>", s, "</p>")).ToList());
+            res.Add(string.Concat("<p>", dateFormated, "</p>"));
+            res.AddRange(data.Select(s=>string.Concat("<p>", s, "</p>")).ToList());
 			res.Add("<br /></div>");
 			return res;
 		}
