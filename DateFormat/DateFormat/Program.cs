@@ -26,8 +26,8 @@ namespace DateFormat
 
             string basePath = Environment.CurrentDirectory;
             string logPath = Path.Combine(basePath, "Log.txt");
-            var log = File.ReadAllLines(logPath);
-            List<string> logList = GetList(log);
+            List<string> logList = File.ReadAllLines(logPath).ToList();
+           // List<string> logList = GetList(log);
 
             #region MyRegion
             SQLiteConnection m_dbConn;
