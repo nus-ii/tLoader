@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DateFormat.BookProfileFolder;
 
 namespace DateFormat
 {
     public enum BookProfileType {T2 }
-    public class BookProfile
+    public class BookProfile:BookProfileBase
     {
         public BookProfileType BookType { get; set; }
         public AnnotationProfile Annotation { get; set; }

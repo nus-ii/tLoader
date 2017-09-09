@@ -15,62 +15,57 @@ namespace DateFormat
     {
         static void Main(string[] args)
         {
-            var profile = BookProfile.GetProfile(BookProfileType.T2);
-            string dbCardFileName = "";
-            string dbReaderFileName = "";
+			var profile = BookProfile.GetProfile(BookProfileType.T2);
 
-            List<DbFileDescription> pretendents = new List<DbFileDescription>();
-            WaitReaderConnection(profile,ref pretendents);
+	        var sl = SelectLogic();
 
-            dbCardFileName = pretendents.FirstOrDefault(p => p.Drive.VolumeLabel != profile.readerDriveLabel).FilePath;
-
-            string basePath = Environment.CurrentDirectory;
-            string logPath = Path.Combine(basePath, "Log.txt");
-            List<string> logList = File.ReadAllLines(logPath).ToList();
-           // List<string> logList = GetList(log);
-
-            #region MyRegion
-            SQLiteConnection m_dbConn;
-            SQLiteCommand m_sqlCmd;
-            m_dbConn = new SQLiteConnection();
-            m_sqlCmd = new SQLiteCommand();
-            m_dbConn = new SQLiteConnection("Data Source=" + dbCardFileName + ";Version=3;");
-            m_dbConn.Open();
-            m_sqlCmd.Connection = m_dbConn;
-            var sqlQuery = "SELECT * FROM annotation";
-            SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
-            DataTable dTable = new DataTable();
-            adapter.Fill(dTable);
-            #endregion
-
-            List<AnnotationItem> annotationList = new List<AnnotationItem>();
-
-            foreach (DataRow r in dTable.Rows)
-            {
-                var item = AnnotationItem.GetItem(r, profile);
-                annotationList.Add(item);
-            }
-
-            PrintAnnotation(annotationList);
-
-            Console.WriteLine($"Annotation number: {annotationList.Count}");
-            Console.ReadLine();
-
-	        var filtredData = GetSource(annotationList, ref logList);
-	        var res = HtmlMaster.GetHtmlList(filtredData);
-	
-
-            var dn = DateTime.Now;
-            string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}.txt";
-            string resultPath = Path.Combine(basePath,ps);
-            File.WriteAllLines(resultPath, res);
-            File.WriteAllLines(logPath, GetArray(logList));
-            Console.WriteLine("All done!!!");
-            Console.ReadLine();
-
+			if (sl==1)
+			ImportLogic(profile);
         }
 
-        private static void PrintAnnotation(List<AnnotationItem> annotationList)
+	    public static int SelectLogic()
+	    {
+			Console.WriteLine("1 - Import annotation");
+			Console.WriteLine("2 - Analysis annotation");
+
+		   return  Convert.ToInt32(Console.ReadLine());
+	    }
+
+	    private static void ImportLogic(BookProfile profile)
+	    {
+			Console.Clear();
+		    string dbCardFileName;
+		    List<DbFileDescription> pretendents = new List<DbFileDescription>();
+		    WaitReaderConnection(profile, ref pretendents);
+
+		    dbCardFileName = pretendents.FirstOrDefault(p => p.Drive.VolumeLabel != profile.readerDriveLabel).FilePath;
+
+		    string basePath = Environment.CurrentDirectory;
+		    string logPath = Path.Combine(basePath, "Log.txt");
+		    List<string> logList = File.ReadAllLines(logPath).ToList();
+		    // List<string> logList = GetList(log);
+
+		    var annotationList = AnnotationReader.Read(dbCardFileName, profile);
+
+		    PrintAnnotation(annotationList);
+
+		    Console.WriteLine($"Annotation number: {annotationList.Count}");
+		    Console.ReadLine();
+
+		    var filtredData = GetSource(annotationList, ref logList);
+		    var res = HtmlMaster.GetHtmlList(filtredData);
+
+
+		    var dn = DateTime.Now;
+		    string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}.txt";
+		    string resultPath = Path.Combine(basePath, ps);
+		    File.WriteAllLines(resultPath, res);
+		    File.WriteAllLines(logPath, GetArray(logList));
+		    Console.WriteLine("All done!!!");
+		    Console.ReadLine();
+	    }
+
+	    private static void PrintAnnotation(List<AnnotationItem> annotationList)
         {
             foreach(var item in annotationList)
             {
@@ -137,16 +132,6 @@ namespace DateFormat
             {
                 result[i] = s;
                 i++;
-            }
-            return result;
-        }
-
-        private static List<string> GetList(string[] logData)
-        {
-            List<string> result = new List<string>();
-            foreach (var s in logData)
-            {
-                result.Add(s);
             }
             return result;
         }

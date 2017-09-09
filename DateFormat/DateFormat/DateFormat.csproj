@@ -67,8 +67,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnnotationItem.cs" />
+    <Compile Include="AnnotationReader.cs" />
     <Compile Include="AnnotatioProfile.cs" />
-    <Compile Include="BookProfile.cs" />
+    <Compile Include="BookProfileFolder\BookProfile.cs" />
+    <Compile Include="BookProfileFolder\BookProfileBase.cs" />
     <Compile Include="DbFileName.cs" />
     <Compile Include="HtmlMaster.cs" />
     <Compile Include="Program.cs" />
