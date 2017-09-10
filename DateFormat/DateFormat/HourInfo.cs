@@ -27,7 +27,7 @@ namespace DateFormat
 
 		public string CSVstring
 		{
-			get { return string.Format("{0};{2};{1}", this.hour.ToString("G"), this.maxpage,pages.Count); }
+			get { return string.Format("{0};{2};{1}", this.hour.ToString("d"), this.maxpage,pages.Count); }
 		}
 		
 		public DateTime hour;
