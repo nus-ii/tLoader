@@ -33,21 +33,23 @@ namespace DateFormat
 			DirectoryInfo dir = new DirectoryInfo(@"C:\HP1");
 			var annotationList = new List<AnnotationItem>();
 
-			// var fileList = new List<FileInfo>();
-			var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains("db"));
+            Console.WriteLine("Список файлов");
+            var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains("db"));
 			foreach (var item in fileList)
 			{
 				Console.WriteLine(item.Name);
 				annotationList.AddRange(AnnotationReader.Read(item.FullName, profile));
 			}
 
-			Console.WriteLine(annotationList.Count);
-			annotationList = AnnotationItem.OnlyUnique(annotationList);
-			List<PageInfo> pages = new List<PageInfo>();
-			Console.WriteLine(annotationList.Count);
-			var en = Enumerable.Range(8, 202);
 
-			foreach (var VARIABLE in en)
+			Console.WriteLine(string.Format("Всего аннотаций {0}",annotationList.Count));
+			annotationList = AnnotationItem.OnlyUnique(annotationList);
+
+            Console.WriteLine(string.Format("Только уникальные аннотации {0}", annotationList.Count));
+            var en = Enumerable.Range(1, 232);
+
+            List<PageInfo> pages = new List<PageInfo>();
+            foreach (var VARIABLE in en)
 			{
 				var p = new PageInfo(VARIABLE);
 				var annOnPage = annotationList.Where(a => a.Page == VARIABLE);
