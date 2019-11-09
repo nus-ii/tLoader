@@ -7,6 +7,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Data;
 using System.Management;
+using DataFormat;
 //Работа с датой
 
 namespace DateFormat
@@ -17,33 +18,132 @@ namespace DateFormat
         {
             var profile = BookProfile.GetProfile(BookProfileType.T2);
 
-            var sl = SelectLogic();
-
-            if (sl == 1)
+            MenuMaster mainMenu = new MenuMaster(new string[] { "Import annotation", "Analysis annotation" });
+            
+            mainMenu.GetAnswer("",true);
+            if (mainMenu.Answer == "Import annotation")
                 ImportLogic(profile);
 
-            if (sl == 2)
+            if (mainMenu.Answer == "Analysis annotation")
                 AnalysisLogic();
-
 
         }
 
-        private static void AnalysisLogic(string diretoryPath= @"C:\HP1\")
+        private static void AnalysisLogic(string diretoryPath= @"C:\AllHarry\")
         {
-            DirectoryInfo dir = new DirectoryInfo(diretoryPath);
-            var annotationList = new List<AnnotationItem>();
 
-            var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains(".db"));
-            foreach (var file in fileList)
+            List<AnnotationItem> annotationList = GetAnnotationsFromAllDb(diretoryPath);
+
+            var bookMenu = annotationList.Select(a => a.BookTittle).Distinct().ToList();
+            bookMenu.Add("All");
+            MenuMaster bookMenuMaster = new MenuMaster(bookMenu);
+
+            string bookAnswer = bookMenuMaster.GetAnswer("Choice book for analysis", true);
+
+            if(bookAnswer!="All")
+            annotationList = FilterByBook(annotationList, bookAnswer);
+
+            string bookShortName = GetShortName(bookAnswer);
+
+            CsvSaveMaster saveMaster = new CsvSaveMaster(diretoryPath, bookShortName);            
+
+            var uniq=UniqAnnotaion(annotationList);
+            saveMaster.Save(uniq,"UniqAnnotaion");
+
+            var words=WordsAddings(annotationList);
+            saveMaster.Save(words, "WordsRepeat");
+
+            var pages=PagesPerDay(annotationList);
+            saveMaster.Save(pages, "PagesPerDay");
+
+            Console.ReadLine();
+        }
+
+        private static string GetShortName(string book)
+        {
+            book = book.ToLower().Trim();
+            string temp = "";
+            
+            foreach(char c in book)
             {
-                Console.WriteLine(file.Name);
-                annotationList.AddRange(AnnotationReader.Read(file.FullName));
+                if (char.IsLetter(c)||c==' ')
+                {
+                    temp += c.ToString();
+                }
             }
 
-            Console.WriteLine(annotationList.Count);
-            annotationList = AnnotationItem.OnlyUnique(annotationList);            
-            Console.WriteLine(annotationList.Count);
+            var splittedTemp = temp.Split(' ');
+            string result = "";
+            for(int i = splittedTemp.Count()-1 ; i >= 0; i--)
+            {
+                
+                result = splittedTemp[i] + "_" + result;
 
+                if (splittedTemp[i] == "the")
+                    break;
+            }          
+            return result.Trim('_');
+        }
+
+        /// <summary>
+        /// Количество страниц в день
+        /// </summary>
+        /// <param name="annotationList"></param>
+        /// <param name="diretoryPath"></param>
+        private static List<DateInfo> PagesPerDay(List<AnnotationItem> annotationList)
+        {
+            List<DateInfo> DateInfoList = new List<DateInfo>();
+
+            foreach (var a in annotationList)
+            {
+                if (DateInfoList.Count == 0 || !DateInfoList.Any(d => d.Equal(a.AddedDate)))
+                {
+                    DateInfoList.Add(new DateInfo(a.AddedDate));
+                }
+                else
+                {
+                    var h = DateInfoList.FirstOrDefault(f => f.Equal(a.AddedDate));
+
+                    if (h != null)
+                        h.Maxpage = a.Page;
+                }
+            }
+            return DateInfoList;
+        }
+
+        /// <summary>
+        /// Количество повторных добавлений слова
+        /// </summary>
+        /// <param name="annotationList"></param>
+        /// <param name="diretoryPath"></param>
+        private static List<WordInfo> WordsAddings(List<AnnotationItem> annotationList)
+        {
+            List<WordInfo> wordInfoList = new List<WordInfo>();
+
+            foreach (var a in annotationList)
+            {
+                if (wordInfoList.Count == 0 || !wordInfoList.Any(w => w.value == a.CleanMarkedText))
+                {
+                    wordInfoList.Add(new WordInfo(a.CleanMarkedText));
+                }
+                else
+                {
+                    var w = wordInfoList.FirstOrDefault(i => i.value == a.CleanMarkedText);
+                    if (w != null)
+                        w.number++;
+                }
+            }
+            return wordInfoList;
+        }
+
+
+        /// <summary>
+        /// Количество уникальных слов на странице
+        /// </summary>
+        /// <param name="annotationList"></param>
+        /// <param name="diretoryPath"></param>
+        private static List<PageInfo> UniqAnnotaion(List<AnnotationItem> annotationList)
+        {
             List<PageInfo> pages = new List<PageInfo>();
             List<int> pagesNumbers = annotationList.Select(a => a.Page).ToList();
             var en = Enumerable.Range(pagesNumbers.Min(), pagesNumbers.Max());
@@ -66,65 +166,30 @@ namespace DateFormat
                     }
                 }
                 pages.Add(p);
-                Console.WriteLine(p.CSVstring);
             }
-
-
-            List<string> result = new List<string> { PageInfo.CSVheader() };
-            result.AddRange(pages.Select(s => s.CSVstring).ToList());
-            File.WriteAllLines(@"C:\HP1\UniqAnnotaion.csv", result);
-
-
-            List<WordInfo> wil = new List<WordInfo>();
-
-            foreach (var a in annotationList)
-            {
-                if (wil.Count == 0 || !wil.Any(w => w.value == a.CleanMarkedText))
-                {
-                    wil.Add(new WordInfo(a.CleanMarkedText));
-                }
-                else
-                {
-                    var w = wil.FirstOrDefault(i => i.value == a.CleanMarkedText);
-                    if (w != null)
-                        w.number++;
-                }
-            }
-
-            Console.WriteLine(wil.Count);
-            File.WriteAllLines(@"C:\HP1\words.csv", wil.Where(i => i.number > 2).Select(s => s.CSVstring));
-
-            List<HourInfo> hi = new List<HourInfo>();
-
-            foreach (var a in annotationList)
-            {
-                if (hi.Count == 0 || !hi.Any(i => i.Eq(a.AddedDate)))
-                {
-                    hi.Add(new HourInfo(a.AddedDate));
-                }
-                else
-                {
-                    var h = hi.FirstOrDefault(f => f.Eq(a.AddedDate));
-
-                    if (h != null)
-                        h.maxpage = a.Page;
-                }
-            }
-
-
-            File.WriteAllLines(@"C:\HP1\hours2.csv", hi.Select(s => s.CSVstring));
-            Console.ReadLine();
+            return pages;
         }
 
-        public static int SelectLogic()
+        private static List<AnnotationItem> GetAnnotationsFromAllDb(string diretoryPath)
         {
-            Console.Clear();
-            Console.WriteLine("1 - Import annotation");
-            Console.WriteLine("2 - Analysis annotation");
-            var i = Convert.ToInt32(Console.ReadLine());
-            Console.Clear();
-            return i;
+            List<AnnotationItem> fullResult =new List<AnnotationItem>();
 
+            DirectoryInfo dir = new DirectoryInfo(diretoryPath);
+            var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains(".db"));
+            foreach (var file in fileList)
+            {
+                fullResult.AddRange(AnnotationReader.Read(file.FullName));
+            }
+            
+            fullResult = AnnotationItem.OnlyUnique(fullResult);
+
+
+            return fullResult;
+        }
+
+        private static List<AnnotationItem>  FilterByBook(List<AnnotationItem> annotation,string book)
+        {
+            return annotation.Where(a => a.BookTittle == book).ToList();
         }
 
         private static void ImportLogic(BookProfile profile)
@@ -139,7 +204,6 @@ namespace DateFormat
             string basePath = Environment.CurrentDirectory;
             string logPath = Path.Combine(basePath, "Log.txt");
             List<string> logList = File.ReadAllLines(logPath).ToList();
-            // List<string> logList = GetList(log);
 
             var annotationList = AnnotationReader.Read(dbCardFileName);
 
@@ -249,5 +313,48 @@ namespace DateFormat
             }
             return result;
         }
+    }
+
+    public class MenuMaster
+    {
+        private Dictionary<int, string> menuDict;
+
+        private int Result;
+
+        public MenuMaster(IEnumerable<string> menuVariants)
+        {
+            menuDict = new Dictionary<int, string>();
+            int i = 1;
+            foreach(string variant in menuVariants)
+            {
+                menuDict.Add(i, variant);
+                i++;
+            }
+        }
+
+        public string GetAnswer(string header = "", bool clear = false)
+        {
+            if (clear)
+                Console.Clear();
+
+            Console.WriteLine(header);
+            foreach(var variant in menuDict)
+            {
+                Console.WriteLine($"{variant.Key} - {variant.Value}");
+            }
+            Result = Int32.Parse(Console.ReadLine());
+
+            return Answer;
+        }
+
+        public string Answer
+        {
+            get
+            {
+                return menuDict.First(i => i.Key == Result).Value;
+            }
+        }
+
+
     }
 }

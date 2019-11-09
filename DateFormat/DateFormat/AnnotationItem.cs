@@ -7,52 +7,46 @@ using System.Threading.Tasks;
 
 namespace DateFormat
 {
-     public class AnnotationItem
+    public class AnnotationItem
     {
-		public string MarkedText { get; set; }
+        public string MarkedText { get => _markedText; set { _markedText = value; CleanMarkedText = value.ToLower().Trim(); } }
+        private string _markedText { get; set; }
         public DateTime AddedDate { get; set; }
-		public int Page { get; set; }
+        public int Page { get; set; }
         public string BookTittle { get; set; }
 
-	    public bool OneWord
-	    {
-		    get
-		    {
-			    if (this.CleanMarkedText.Split(' ').Length!=1)
-				    return true;
+        public bool OneWord
+        {
+            get
+            {
+                if (this.CleanMarkedText.Split(' ').Length != 1)
+                    return true;
 
-			    return false;
-		    }
-	    }
+                return false;
+            }
+        }
 
-	    public string CleanMarkedText
-	    {
-		    get
-		    {
-			    return MarkedText.ToLower().Trim();
-		    }
-	    }
+        public string CleanMarkedText { get; private set; }
 
-	    public bool ValueEqual(AnnotationItem another)
-	    {
-		    if (this.CleanMarkedText == another.CleanMarkedText)
-			    return true;
+        public bool ValueEqual(AnnotationItem another)
+        {
+            if (this.CleanMarkedText == another.CleanMarkedText)
+                return true;
 
-		    return false;
-	    }
+            return false;
+        }
 
-	    public bool FullEqual(AnnotationItem another)
-	    {
-		    if (this.ValueEqual(another))
-		    {
-			    if (this.AddedDate == another.AddedDate && this.Page == another.Page)
-				    return true;
-		    }
-		    return false;
-	    }
+        public bool FullEqual(AnnotationItem another)
+        {
+            if (this.Page == another.Page && this.ValueEqual(another) && this.AddedDate == another.AddedDate)
+            {
+                return true;
+            }
+            return false;
+        }
 
         public string ToCsvString()
-        {            
+        {
             string result = $"{MarkedText};{AddedDate.ToString("G")};{BookTittle};{Page}";
             return result;
         }
@@ -62,18 +56,18 @@ namespace DateFormat
             return MarkedText.Trim().ToLower();
         }
 
-	    public static List<AnnotationItem> OnlyUnique(List<AnnotationItem> target)
-	    {
-		    List<AnnotationItem> result=new List<AnnotationItem>();
+        public static List<AnnotationItem> OnlyUnique(List<AnnotationItem> target)
+        {
+            List<AnnotationItem> result = new List<AnnotationItem>();
 
-		    foreach (var i in target)
-		    {
-			    if(result.Count==0||!result.Any(a=>a.FullEqual(i)))
-					result.Add(i);
-		    }
-		    return result;
-	    }
+            foreach (var i in target)
+            {
+                if (result.Count == 0 || !result.Any(a => a.FullEqual(i)))
+                    result.Add(i);
+            }
+            return result;
+        }
 
 
-	}
+    }
 }

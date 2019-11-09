@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DateFormat
+namespace DataFormat
 {
-	public class PageInfo
-	{
+	public class PageInfo : IDataObject
+    {
 		public int Number { get; set; }
 
 		public  int UniqAnnotation{ get; set; }
@@ -21,12 +21,12 @@ namespace DateFormat
 			get { return string.Format($"{Number};{NotuniqAnnotaion};{UniqAnnotation}"); }
 		}
 
-        public static string CSVheader()
+        public string CSVHeader
         {
-            return "Page;NotuniqAnnotaion;UniqAnnotation";
-        }
+           get{ return "Page;NotuniqAnnotaion;UniqAnnotation"; }
+        }       
 
-		public PageInfo(int number)
+        public PageInfo(int number)
 		{
 			this.Number = number;
 		}

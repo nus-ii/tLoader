@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DateFormat
+namespace DataFormat
 {
-	class WordInfo
+	public class WordInfo:IDataObject
 	{
 		public string value;
 
@@ -17,7 +17,9 @@ namespace DateFormat
 			get { return string.Format($"{value};{number}"); }
 		}
 
-		public WordInfo(string val)
+        public string CSVHeader => "Word;Count";
+
+        public WordInfo(string val)
 		{
 			this.value = val;
 			number = 1;
