@@ -23,17 +23,17 @@ namespace DateFormat
                 ImportLogic(profile);
 
             if (sl == 2)
-                AnalysisLogic(profile);
+                AnalysisLogic();
 
 
         }
 
-        private static void AnalysisLogic(BookProfile profile)
+        private static void AnalysisLogic(string diretoryPath= @"C:\HP1\")
         {
-            DirectoryInfo dir = new DirectoryInfo(@"C:\HP1");
+            DirectoryInfo dir = new DirectoryInfo(diretoryPath);
             var annotationList = new List<AnnotationItem>();
 
-            var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains("db"));
+            var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains(".db"));
             foreach (var file in fileList)
             {
                 Console.WriteLine(file.Name);
@@ -41,10 +41,10 @@ namespace DateFormat
             }
 
             Console.WriteLine(annotationList.Count);
-            annotationList = AnnotationItem.OnlyUnique(annotationList);
-            List<PageInfo> pages = new List<PageInfo>();
+            annotationList = AnnotationItem.OnlyUnique(annotationList);            
             Console.WriteLine(annotationList.Count);
 
+            List<PageInfo> pages = new List<PageInfo>();
             List<int> pagesNumbers = annotationList.Select(a => a.Page).ToList();
             var en = Enumerable.Range(pagesNumbers.Min(), pagesNumbers.Max());
 
@@ -134,7 +134,7 @@ namespace DateFormat
             List<DbFileDescription> pretendents = new List<DbFileDescription>();
             WaitReaderConnection(profile, ref pretendents);
 
-            dbCardFileName = pretendents.FirstOrDefault(p => p.Drive.VolumeLabel != profile.readerDriveLabel).FilePath;
+            dbCardFileName = pretendents.FirstOrDefault(p => p.Drive.VolumeLabel != profile.ReaderDriveLabel).FilePath;
 
             string basePath = Environment.CurrentDirectory;
             string logPath = Path.Combine(basePath, "Log.txt");
@@ -191,7 +191,7 @@ namespace DateFormat
 
             foreach (var d in allDrives)
             {
-                if (File.Exists(Path.Combine(d.RootDirectory.FullName, profile.bookDbPath)))
+                if (File.Exists(Path.Combine(d.RootDirectory.FullName, profile.BookDbPath)))
                 {
                     pretendent.Add(d);
                 }
@@ -205,7 +205,7 @@ namespace DateFormat
                     dbPretendents.Add(new DbFileDescription
                     {
                         Drive = p,
-                        FilePath = Path.Combine(p.RootDirectory.FullName, profile.bookDbPath)
+                        FilePath = Path.Combine(p.RootDirectory.FullName, profile.BookDbPath)
                     });
                 }
                 //DriveInfo readerPretendent = pretendent.FirstOrDefault(p => p.VolumeLabel == profile.readerDriveLabel);
