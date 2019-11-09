@@ -136,7 +136,6 @@ namespace DateFormat
             return wordInfoList;
         }
 
-
         /// <summary>
         /// Количество уникальных слов на странице
         /// </summary>
