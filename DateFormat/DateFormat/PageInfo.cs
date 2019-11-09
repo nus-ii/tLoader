@@ -21,6 +21,11 @@ namespace DateFormat
 			get { return string.Format($"{Number};{NotuniqAnnotaion};{UniqAnnotation}"); }
 		}
 
+        public static string CSVheader()
+        {
+            return "Page;NotuniqAnnotaion;UniqAnnotation";
+        }
+
 		public PageInfo(int number)
 		{
 			this.Number = number;

@@ -12,12 +12,13 @@ namespace DateFormat
 		public string MarkedText { get; set; }
         public DateTime AddedDate { get; set; }
 		public int Page { get; set; }
+        public string BookTittle { get; set; }
 
 	    public bool OneWord
 	    {
 		    get
 		    {
-			    if (!this.CleanMarkedText.Contains(" "))
+			    if (this.CleanMarkedText.Split(' ').Length!=1)
 				    return true;
 
 			    return false;
@@ -31,15 +32,6 @@ namespace DateFormat
 			    return MarkedText.ToLower().Trim();
 		    }
 	    }
-
-	    internal static AnnotationItem GetItem(DataRow r, BookProfile profile)
-        {
-            AnnotationItem result = new AnnotationItem();
-            result.MarkedText = r.ItemArray[profile.Annotation.MarkedText].ToString();
-            result.AddedDate = UHelper.UDateFormat(r.ItemArray[profile.Annotation.AddedDate].ToString());
-			result.Page = Convert.ToInt32(r.ItemArray[profile.Annotation.Page].ToString());
-			return result;
-        }
 
 	    public bool ValueEqual(AnnotationItem another)
 	    {
@@ -60,9 +52,8 @@ namespace DateFormat
 	    }
 
         public string ToCsvString()
-        {
-            string result="";
-            result = string.Concat(MarkedText,";",AddedDate.ToString("G"),";",Page);
+        {            
+            string result = $"{MarkedText};{AddedDate.ToString("G")};{BookTittle};{Page}";
             return result;
         }
 

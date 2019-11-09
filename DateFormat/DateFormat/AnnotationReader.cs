@@ -10,33 +10,54 @@ using System.Management;
 
 namespace DateFormat
 {
-	public class AnnotationReader
-	{
-		public static List<AnnotationItem> Read(string path, BookProfile profile)
-		{
-			#region MyRegion
-			SQLiteConnection m_dbConn;
-			SQLiteCommand m_sqlCmd;
-			m_dbConn = new SQLiteConnection();
-			m_sqlCmd = new SQLiteCommand();
-			m_dbConn = new SQLiteConnection("Data Source=" + path + ";Version=3;");
-			m_dbConn.Open();
-			m_sqlCmd.Connection = m_dbConn;
-			var sqlQuery = "SELECT * FROM annotation";
-			SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
-			DataTable dTable = new DataTable();
-			adapter.Fill(dTable);
-			#endregion
+    public class AnnotationReader
+    {
+        public static List<AnnotationItem> Read(string path)
+        {
+            #region MyRegion
+            SQLiteConnection m_dbConn;
+            SQLiteCommand m_sqlCmd;
+            m_dbConn = new SQLiteConnection();
+            m_sqlCmd = new SQLiteCommand();
+            m_dbConn = new SQLiteConnection("Data Source=" + path + ";Version=3;");
+            m_dbConn.Open();
+            m_sqlCmd.Connection = m_dbConn;
+            var sqlQuery = "SELECT a.*,b.title FROM annotation a LEFT JOIN books b ON a.content_id=b._id";
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
+            DataTable dTable = new DataTable();
+            adapter.Fill(dTable);
+            #endregion
 
-			List<AnnotationItem> annotationList = new List<AnnotationItem>();
+            List<AnnotationItem> annotationList = new List<AnnotationItem>();
 
-			foreach (DataRow r in dTable.Rows)
-			{
-				var item = AnnotationItem.GetItem(r, profile);
-				annotationList.Add(item);
-			}
+            foreach (DataRow r in dTable.Rows)
+            {
+                var item = GetAnnotation(r);//AnnotationItem.GetItem(r, profile);
+                annotationList.Add(item);
+            }
 
-			return annotationList;
-		}
-	}
+            return annotationList;
+        }
+
+        public static AnnotationItem GetAnnotation(DataRow row)
+        {
+            return new AnnotationItem
+            {
+                MarkedText = row.Get("marked_text"),
+                AddedDate = UHelper.UDateFormat(row.Get("added_date")),
+                Page = Convert.ToInt32(row.Get("page")),
+                BookTittle = row.Get("title")
+            };
+        }
+    }
+
+    public static class sqlHelper
+    {
+        public static string Get(this DataRow row, string header)
+        {
+            string result = "";
+            result = row.ItemArray[row.Table.Columns.IndexOf(header)].ToString();
+            return result;
+        }
+    }
 }
