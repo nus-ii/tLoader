@@ -27,6 +27,8 @@ namespace DateFormat
             if (mainMenu.Answer == "Analysis annotation")
                 AnalysisLogic();
 
+            Console.WriteLine("All done!");
+            Console.ReadLine();
         }
 
         private static void AnalysisLogic(string diretoryPath= @"C:\AllHarry\")
@@ -220,8 +222,6 @@ namespace DateFormat
             string resultPath = Path.Combine(basePath, ps);
             File.WriteAllLines(resultPath, res);
             File.WriteAllLines(logPath, GetArray(logList));
-            Console.WriteLine("All done!!!");
-            Console.ReadLine();
         }
 
         private static void PrintAnnotation(List<AnnotationItem> annotationList)
