@@ -72,6 +72,8 @@
     <Compile Include="DataFormat\DateInfo.cs" />
     <Compile Include="HtmlMaster.cs" />
     <Compile Include="DataFormat\PageInfo.cs" />
+    <Compile Include="LionLogic.cs" />
+    <Compile Include="LionWord.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="uHelper.cs" />

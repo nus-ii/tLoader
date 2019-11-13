@@ -18,7 +18,11 @@ namespace DateFormat
         {
             var profile = BookProfile.GetProfile(BookProfileType.T2);
 
-            MenuMaster mainMenu = new MenuMaster(new string[] { "Import annotation", "Analysis annotation" });
+            MenuMaster mainMenu = new MenuMaster(new string[] {
+                "Import annotation",
+                "Analysis annotation",
+                "Lingualeo analysis"
+            });
             
             mainMenu.GetAnswer("",true);
             if (mainMenu.Answer == "Import annotation")
@@ -26,6 +30,12 @@ namespace DateFormat
 
             if (mainMenu.Answer == "Analysis annotation")
                 AnalysisLogic();
+
+            if (mainMenu.Answer == "Lingualeo analysis")
+            {
+                var l = new LionLogic();
+                l.Analysis();
+            }
 
             Console.WriteLine("All done!");
             Console.ReadLine();
@@ -58,7 +68,16 @@ namespace DateFormat
             var pages=PagesPerDay(annotationList);
             saveMaster.Save(pages, "PagesPerDay");
 
-            Console.ReadLine();
+            //var sameRoot = SameRoot(annotationList);
+            //saveMaster.Save(sameRoot, "SameRoot");
+
+            for(int i = 3; i <= 6; i++)
+            {
+                var sameRoot = SameRoot(annotationList,i);
+                saveMaster.Save(sameRoot, $"SameRoot_len{i}");
+            }
+
+            //Console.ReadLine();
         }
 
         private static string GetShortName(string book)
@@ -136,6 +155,21 @@ namespace DateFormat
                 }
             }
             return wordInfoList;
+        }
+
+
+        private static List<WordInfo> SameRoot(List<AnnotationItem> annotationList,int rootLength=4)
+        {
+            List<WordInfo> wordInfoList = WordsAddings(annotationList);
+
+            var temp = wordInfoList.Where(w=>w.value.Length>=rootLength);
+
+            var g = temp.Where(w => temp.Where(i => i.value.Substring(0, rootLength) ==w.value.Substring(0, rootLength)).Count() >= 4).ToList();
+
+            g.Sort();
+            
+            return g;
+
         }
 
         /// <summary>

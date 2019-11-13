@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataFormat
 {
-	public class WordInfo:IDataObject
+	public class WordInfo:IDataObject,IComparable<WordInfo>
 	{
 		public string value;
 
@@ -25,6 +25,14 @@ namespace DataFormat
 			number = 1;
 		}
 
-		
-	}
+        public int CompareTo(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int CompareTo(WordInfo other)
+        {
+            return string.Compare(this.value, other.value);
+        }
+    }
 }
