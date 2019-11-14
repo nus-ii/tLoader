@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataFormat;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DateFormat
 {
-    public class LionWord
+    public class LionWord:IDataObject
     {
         public string Word { get; set; }
 
@@ -20,7 +21,14 @@ namespace DateFormat
             }
         }
 
+        public string CSVstring
+        {
+            get
+            {
+                return $"{Word};{Translate};";
+            }
+        }
 
-
+        public string CSVHeader => "Word;Translate;";
     }
 }

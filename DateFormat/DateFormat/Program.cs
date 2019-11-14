@@ -17,11 +17,13 @@ namespace DateFormat
         static void Main(string[] args)
         {
             var profile = BookProfile.GetProfile(BookProfileType.T2);
+            var l = new LionSupporter();
+            OutputMaster outputMaster = new OutputMaster(@"C:\AllHarry\");
 
             MenuMaster mainMenu = new MenuMaster(new string[] {
                 "Import annotation",
                 "Analysis annotation",
-                "Lingualeo analysis"
+                "Print Lingualeo Dictionary"
             });
             
             mainMenu.GetAnswer("",true);
@@ -29,19 +31,20 @@ namespace DateFormat
                 ImportLogic(profile);
 
             if (mainMenu.Answer == "Analysis annotation")
-                AnalysisLogic();
+                AnalysisLogic(@"C:\AllHarry\", outputMaster);
 
-            if (mainMenu.Answer == "Lingualeo analysis")
+            if (mainMenu.Answer == "Print Lingualeo Dictionary")
             {
-                var l = new LionLogic();
-                l.Analysis();
+                outputMaster.Print(l.Words);
+                outputMaster.Save(l.Words, "dict.csv");
+               
             }
 
             Console.WriteLine("All done!");
             Console.ReadLine();
         }
 
-        private static void AnalysisLogic(string diretoryPath= @"C:\AllHarry\")
+        private static void AnalysisLogic(string diretoryPath,OutputMaster outputMaster)
         {
 
             List<AnnotationItem> annotationList = GetAnnotationsFromAllDb(diretoryPath);
@@ -57,16 +60,16 @@ namespace DateFormat
 
             string bookShortName = GetShortName(bookAnswer);
 
-            CsvSaveMaster saveMaster = new CsvSaveMaster(diretoryPath, bookShortName);            
+                        
 
             var uniq=UniqAnnotaion(annotationList);
-            saveMaster.Save(uniq,"UniqAnnotaion");
+            outputMaster.Save(uniq,"UniqAnnotaion"+"_"+ bookShortName);
 
             var words=WordsAddings(annotationList);
-            saveMaster.Save(words, "WordsRepeat");
+            outputMaster.Save(words, "WordsRepeat" + "_" + bookShortName);
 
             var pages=PagesPerDay(annotationList);
-            saveMaster.Save(pages, "PagesPerDay");
+            outputMaster.Save(pages, "PagesPerDay" + "_" + bookShortName);
 
             //var sameRoot = SameRoot(annotationList);
             //saveMaster.Save(sameRoot, "SameRoot");
@@ -74,7 +77,7 @@ namespace DateFormat
             for(int i = 3; i <= 6; i++)
             {
                 var sameRoot = SameRoot(annotationList,i);
-                saveMaster.Save(sameRoot, $"SameRoot_len{i}");
+                outputMaster.Save(sameRoot, $"SameRoot_len{i}");
             }
 
             //Console.ReadLine();
@@ -164,11 +167,11 @@ namespace DateFormat
 
             var temp = wordInfoList.Where(w=>w.value.Length>=rootLength);
 
-            var g = temp.Where(w => temp.Where(i => i.value.Substring(0, rootLength) ==w.value.Substring(0, rootLength)).Count() >= 4).ToList();
+            var preResult = temp.Where(w => temp.Where(i => i.value.Substring(0, rootLength) ==w.value.Substring(0, rootLength)).Count() >= 4).ToList();
 
-            g.Sort();
+            preResult.Sort();
             
-            return g;
+            return preResult;
 
         }
 

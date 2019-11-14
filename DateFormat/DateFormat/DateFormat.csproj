@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analisys.cs" />
     <Compile Include="AnnotationItem.cs" />
     <Compile Include="AnnotationReader.cs" />
     <Compile Include="BookProfileFolder\BookProfile.cs" />

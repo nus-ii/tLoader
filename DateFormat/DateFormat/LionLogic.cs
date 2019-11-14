@@ -7,36 +7,41 @@ using System.IO;
 
 namespace DateFormat
 {
-    public class LionLogic
+    /// <summary>
+    /// Класс поддержки словаря Lingualeo
+    /// </summary>
+    public class LionSupporter
     {
         private string _dictPath;
+        public List<LionWord> Words { get; }
 
-        public LionLogic(string dictPath = @"C:\AllHarry\lingualeo_dict.csv")
+        public LionSupporter(string dictPath = @"C:\AllHarry\lingualeo_dict.csv")
         {
             _dictPath = dictPath;
-        }
 
-        public void Analysis()
-        {
             var data = File.ReadAllLines(_dictPath);
 
-            List<LionWord> words = data.Select(l => l.Split(';'))
+            Words = data.Select(l => l.Split(';'))
                 .Select(a => new LionWord()
                 {
                     Word = a[0].Trim('"'),
                     Translate = a[1].Trim('"')
                 }).ToList();
-
-            int i = 0;
-            foreach(var w in words)
-            {
-                Console.WriteLine($"{w.Word} - {w.Translate}");
-                i++;
-                if (i == 100)
-                    break;
-            }
-            Console.Write(words.Count());
-            
         }
+
+        //public void Print()
+        //{
+
+        //    int i = 0;
+        //    foreach (var w in Words)
+        //    {
+        //        Console.WriteLine($"{w.Word} - {w.Translate}");
+        //        i++;
+        //        if (i == 100)
+        //            break;
+        //    }
+        //    Console.Write(Words.Count());
+
+        //}
     }
 }
