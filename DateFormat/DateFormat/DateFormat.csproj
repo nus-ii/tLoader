@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analisys.cs" />
+    <Compile Include="AnnotationImporter.cs" />
     <Compile Include="AnnotationItem.cs" />
     <Compile Include="AnnotationReader.cs" />
     <Compile Include="BookProfileFolder\BookProfile.cs" />
