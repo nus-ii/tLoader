@@ -10,7 +10,7 @@ namespace DateFormat
     public class AnnotationImporter
     {
 
-        public static void ImportLogic(BookProfile profile)
+        public static void ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
         {
             Console.Clear();
             string dbCardFileName;
@@ -30,15 +30,50 @@ namespace DateFormat
             Console.WriteLine($"Annotation number: {annotationList.Count}");
             Console.ReadLine();
 
-            var filtredData = GetSource(annotationList, ref logList);
+            //var filtredData = GetSource(annotationList, ref logList);
 
-            var res = HtmlMaster.GetHtmlList(filtredData);
+            //
+
+            List<AnnotationItem> withoutTranslate = Separate(annotationList,dict,out List<Tuple<string,string>> forgotten);
+
+            List<string> resultData = new List<string>();
+
+            resultData.AddRange(withoutTranslate.Select(i=>i.MarkedText));
+
+            resultData.Add("----------------------------------------------");
+
+            resultData.AddRange(forgotten.Select(i=>$"{i.Item1} - {i.Item2}"));
+
+            var res = HtmlMaster.GetHtmlList(resultData);
 
             var dn = DateTime.Now;
             string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}.txt";
             string resultPath = Path.Combine(basePath, ps);
             File.WriteAllLines(resultPath, res);
             File.WriteAllLines(logPath, GetArray(logList));
+        }
+
+        private static List<AnnotationItem> Separate(List<AnnotationItem> annotationList, List<Tuple<string, string>> dict, out List<Tuple<string, string>> forgotten)
+        {
+            List<AnnotationItem> result = new List<AnnotationItem>();
+            forgotten = new List<Tuple<string, string>>();
+
+            List<Tuple<string, string>> normalDict = dict.Select(i => new Tuple<string, string>(i.Item1.ToLower().Trim(), i.Item2)).ToList();
+
+            foreach(AnnotationItem item in annotationList)
+            {
+                var t = normalDict.FirstOrDefault(i => i.Item1 == item.MarkedText.ToLower().Trim());
+                if(t!=null)
+                {
+                    forgotten.Add(t);
+                }
+                else
+                {
+                    result.Add(item);
+                }
+            }
+
+            return result;
         }
 
         private static void PrintAnnotation(List<AnnotationItem> annotationList)

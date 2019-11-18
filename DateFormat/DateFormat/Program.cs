@@ -28,7 +28,10 @@ namespace DateFormat
             
             mainMenu.GetAnswer("",true);
             if (mainMenu.Answer == "Import annotation")
-                ImportLogic(profile);
+            {
+                List<Tuple<string,string>> myEnDict=l.Words.Select(i => new Tuple<string, string>(i.Word,i.Translate)).ToList();
+                ImportLogic(profile,myEnDict);
+            }  
 
             if (mainMenu.Answer == "Analysis annotation")
                 AnalysisLogic(@"C:\AllHarry\", outputMaster);
@@ -230,9 +233,9 @@ namespace DateFormat
             return annotation.Where(a => a.BookTittle == book).ToList();
         }
 
-        private static void ImportLogic(BookProfile profile)
+        private static void ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
         {
-            AnnotationImporter.ImportLogic(profile);
+            AnnotationImporter.ImportLogic(profile,dict);
         }
 
         
