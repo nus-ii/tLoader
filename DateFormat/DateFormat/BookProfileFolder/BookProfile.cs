@@ -11,9 +11,8 @@ namespace DateFormat
     public class BookProfile:BookProfileBase
     {
         public BookProfileType BookType { get; set; }
-        public AnnotationProfile Annotation { get; set; }
-        public string bookDbPath { get; set; }
-        public string readerDriveLabel { get; set; }
+        public string BookDbPath { get; set; }
+        public string ReaderDriveLabel { get; set; }
 
 
         public static BookProfile GetProfile(BookProfileType targetType)
@@ -22,9 +21,8 @@ namespace DateFormat
             if (targetType == BookProfileType.T2)
             {
                 result.BookType = targetType;
-                result.Annotation = AnnotationProfile.GetProfile(targetType);
-                result.bookDbPath = @"Sony_Reader\database\books.db";
-                result.readerDriveLabel = "READER";
+                result.BookDbPath = @"Sony_Reader\database\books.db";
+                result.ReaderDriveLabel = "READER";
             }
             return result;
         }

@@ -9,52 +9,24 @@ namespace DateFormat
 {
     public class AnnotationItem
     {
-        private string _markedText;
-        public string MarkedText
-        {
-            get
-            {
-                return _markedText;
-            }
-            set
-            {
-                _markedText = value;
-                _cleanMarkedText=MarkedText.ToLower().Trim();
-
-            }
-        }
+        public string MarkedText { get => _markedText; set { _markedText = value; CleanMarkedText = value.ToLower().Trim(); } }
+        private string _markedText { get; set; }
         public DateTime AddedDate { get; set; }
         public int Page { get; set; }
+        public string BookTittle { get; set; }
 
         public bool OneWord
         {
             get
             {
-                if (!this.CleanMarkedText.Contains(" "))
+                if (this.CleanMarkedText.Split(' ').Length != 1)
                     return true;
 
                 return false;
             }
         }
 
-        private string _cleanMarkedText;
-
-        public string CleanMarkedText
-        {
-            get
-            {
-                return _cleanMarkedText;
-            }
-        }
-
-        internal static AnnotationItem GetItem(DataRow r, BookProfile profile)
-        {
-            AnnotationItem result = new AnnotationItem();
-            result.MarkedText = r.ItemArray[profile.Annotation.MarkedText].ToString();
-            result.AddedDate = UHelper.UDateFormat(r.ItemArray[profile.Annotation.AddedDate].ToString());
-            result.Page = Convert.ToInt32(r.ItemArray[profile.Annotation.Page].ToString());
-            return result;
-        }
+        public string CleanMarkedText { get; private set; }
 
         public bool ValueEqual(AnnotationItem another)
         {
@@ -66,18 +38,16 @@ namespace DateFormat
 
         public bool FullEqual(AnnotationItem another)
         {
-            if (this.AddedDate == another.AddedDate && this.Page == another.Page)
+            if (this.Page == another.Page && this.ValueEqual(another) && this.AddedDate == another.AddedDate)
             {
-                if (this.ValueEqual(another))
-                    return true;
+                return true;
             }
             return false;
         }
 
         public string ToCsvString()
         {
-            string result = "";
-            result = string.Concat(MarkedText, ";", AddedDate.ToString("G"), ";", Page);
+            string result = $"{MarkedText};{AddedDate.ToString("G")};{BookTittle};{Page}";
             return result;
         }
 
