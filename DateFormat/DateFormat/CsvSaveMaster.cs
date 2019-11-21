@@ -17,21 +17,34 @@ namespace DateFormat
             this.diretoryPath = diretoryPath;            
         }
 
-        internal void Save<T>(List<T> data,string reportName) where T :IDataObject
+        internal void Save<T>(List<T> data,string reportName, string fileExtension = "csv") where T :IDataObject
         {
             List<string> result = Combine(data);
-          
-            string fileName = $"{reportName}.csv";
 
-            File.WriteAllLines(Path.Combine(diretoryPath, fileName), result);
+            this.Save(result, reportName,fileExtension);
+        }
+
+        internal void Save(List<string> data,string reportName,string fileExtension="txt")
+        {
+            if (string.IsNullOrEmpty(reportName))
+                throw new Exception("Необходимо название отчёта");
+
+            string fileName = $"{reportName}.{fileExtension}";
+
+            File.WriteAllLines(Path.Combine(diretoryPath, fileName), data);
         }
 
         internal void Print<T>(List<T> data, string reportName="") where T : IDataObject
         {
             List<string> result = Combine(data);
 
+            this.Print(result,reportName);
+        }
+
+        internal void Print(List<string> data, string reportName="")
+        {
             Console.WriteLine(reportName);
-            foreach(string s in result)
+            foreach (string s in data)
             {
                 Console.WriteLine(s);
             }

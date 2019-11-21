@@ -10,7 +10,7 @@ namespace DateFormat
     public class AnnotationImporter
     {
 
-        public static void ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
+        public static List<string> ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
         {
             Console.Clear();
             string dbCardFileName;
@@ -44,16 +44,19 @@ namespace DateFormat
 
             resultData.AddRange(forgotten.Select(i=>$"{i.Item1} - {i.Item2}"));
 
-            var res = HtmlMaster.GetHtmlList(resultData);
-
-            var dn = DateTime.Now;
-            string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}.txt";
-            string resultPath = Path.Combine(basePath, ps);
-            File.WriteAllLines(resultPath, res);
-            File.WriteAllLines(logPath, GetArray(logList));
+            return resultData;
         }
 
-        private static List<AnnotationItem> Separate(List<AnnotationItem> annotationList, List<Tuple<string, string>> dict, out List<Tuple<string, string>> forgotten)
+        /// <summary>
+        /// Разделение входящих анотаций на забытые и новые
+        /// </summary>
+        /// <param name="annotationList">Исходный список аннотаций</param>
+        /// <param name="dict">Словарь знакомых слов</param>
+        /// <param name="forgotten">Список забытых слов с переводом</param>
+        /// <returns></returns>
+        private static List<AnnotationItem> Separate(List<AnnotationItem> annotationList, 
+            List<Tuple<string, string>> dict, 
+            out List<Tuple<string, string>> forgotten)
         {
             List<AnnotationItem> result = new List<AnnotationItem>();
             forgotten = new List<Tuple<string, string>>();

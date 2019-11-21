@@ -30,7 +30,14 @@ namespace DateFormat
             if (mainMenu.Answer == "Import annotation")
             {
                 List<Tuple<string,string>> myEnDict=l.Words.Select(i => new Tuple<string, string>(i.Word,i.Translate)).ToList();
-                ImportLogic(profile,myEnDict);
+                List<string> res=ImportLogic(profile,myEnDict);
+
+                var dn = DateTime.Now;
+                string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}";
+
+                outputMaster.Print(res);
+                List<string> resultData = HtmlMaster.GetHtmlList(res);
+                outputMaster.Save(resultData, ps);
             }  
 
             if (mainMenu.Answer == "Analysis annotation")
@@ -233,9 +240,18 @@ namespace DateFormat
             return annotation.Where(a => a.BookTittle == book).ToList();
         }
 
-        private static void ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
+        private static List<string> ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
         {
-            AnnotationImporter.ImportLogic(profile,dict);
+            List<string> res = AnnotationImporter.ImportLogic(profile,dict);
+
+            
+
+            return res;
+
+            
+            //string resultPath = Path.Combine(basePath, ps);
+            //File.WriteAllLines(resultPath, res);
+            //File.WriteAllLines(logPath, GetArray(logList));
         }
 
         
