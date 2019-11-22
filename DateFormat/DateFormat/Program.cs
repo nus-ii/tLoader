@@ -21,16 +21,17 @@ namespace DateFormat
             OutputMaster outputMaster = new OutputMaster(@"C:\AllHarry\");
 
             MenuMaster mainMenu = new MenuMaster(new string[] {
-                "Import annotation",
+                "Get new annotation",
+                "Copy annotation to PC",
                 "Analysis annotation",
                 "Print Lingualeo Dictionary"
             });
-            
-            mainMenu.GetAnswer("",true);
-            if (mainMenu.Answer == "Import annotation")
+
+            mainMenu.GetAnswer("", true);
+            if (mainMenu.Answer == "Get new annotation")
             {
-                List<Tuple<string,string>> myEnDict=l.Words.Select(i => new Tuple<string, string>(i.Word,i.Translate)).ToList();
-                List<string> res=ImportLogic(profile,myEnDict);
+                List<Tuple<string, string>> myEnDict = l.Words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
+                List<string> res = ImportLogic(profile, myEnDict);
 
                 var dn = DateTime.Now;
                 string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}";
@@ -38,23 +39,28 @@ namespace DateFormat
                 outputMaster.Print(res);
                 List<string> resultData = HtmlMaster.GetHtmlList(res);
                 outputMaster.Save(resultData, ps);
-            }  
+            }
+
+            if (mainMenu.Answer== "Copy annotation to PC")
+            {
+                MenuMaster.GetConfidentAnswer();
+            }
 
             if (mainMenu.Answer == "Analysis annotation")
-                AnalysisLogic(@"C:\AllHarry\", outputMaster);
+            { AnalysisLogic(@"C:\AllHarry\", outputMaster); }
 
             if (mainMenu.Answer == "Print Lingualeo Dictionary")
             {
                 outputMaster.Print(l.Words);
                 outputMaster.Save(l.Words, "dict.csv");
-               
+
             }
 
-            Console.WriteLine("All done!");
+            Console.WriteLine("All done!!!!!");
             Console.ReadLine();
         }
 
-        private static void AnalysisLogic(string diretoryPath,OutputMaster outputMaster)
+        private static void AnalysisLogic(string diretoryPath, OutputMaster outputMaster)
         {
 
             List<AnnotationItem> annotationList = GetAnnotationsFromAllDb(diretoryPath);
@@ -65,28 +71,28 @@ namespace DateFormat
 
             string bookAnswer = bookMenuMaster.GetAnswer("Choice book for analysis", true);
 
-            if(bookAnswer!="All")
-            annotationList = FilterByBook(annotationList, bookAnswer);
+            if (bookAnswer != "All")
+                annotationList = FilterByBook(annotationList, bookAnswer);
 
             string bookShortName = GetShortName(bookAnswer);
 
-                        
 
-            var uniq=UniqAnnotaion(annotationList);
-            outputMaster.Save(uniq,"UniqAnnotaion"+"_"+ bookShortName);
 
-            var words=WordsAddings(annotationList);
+            var uniq = UniqAnnotaion(annotationList);
+            outputMaster.Save(uniq, "UniqAnnotaion" + "_" + bookShortName);
+
+            var words = WordsAddings(annotationList);
             outputMaster.Save(words, "WordsRepeat" + "_" + bookShortName);
 
-            var pages=PagesPerDay(annotationList);
+            var pages = PagesPerDay(annotationList);
             outputMaster.Save(pages, "PagesPerDay" + "_" + bookShortName);
 
             //var sameRoot = SameRoot(annotationList);
             //saveMaster.Save(sameRoot, "SameRoot");
 
-            for(int i = 3; i <= 6; i++)
+            for (int i = 3; i <= 6; i++)
             {
-                var sameRoot = SameRoot(annotationList,i);
+                var sameRoot = SameRoot(annotationList, i);
                 outputMaster.Save(sameRoot, $"SameRoot_len{i}");
             }
 
@@ -97,10 +103,10 @@ namespace DateFormat
         {
             book = book.ToLower().Trim();
             string temp = "";
-            
-            foreach(char c in book)
+
+            foreach (char c in book)
             {
-                if (char.IsLetter(c)||c==' ')
+                if (char.IsLetter(c) || c == ' ')
                 {
                     temp += c.ToString();
                 }
@@ -108,14 +114,14 @@ namespace DateFormat
 
             var splittedTemp = temp.Split(' ');
             string result = "";
-            for(int i = splittedTemp.Count()-1 ; i >= 0; i--)
+            for (int i = splittedTemp.Count() - 1; i >= 0; i--)
             {
-                
+
                 result = splittedTemp[i] + "_" + result;
 
                 if (splittedTemp[i] == "the")
                     break;
-            }          
+            }
             return result.Trim('_');
         }
 
@@ -171,16 +177,16 @@ namespace DateFormat
         }
 
 
-        private static List<WordInfo> SameRoot(List<AnnotationItem> annotationList,int rootLength=4)
+        private static List<WordInfo> SameRoot(List<AnnotationItem> annotationList, int rootLength = 4)
         {
             List<WordInfo> wordInfoList = WordsAddings(annotationList);
 
-            var temp = wordInfoList.Where(w=>w.value.Length>=rootLength);
+            var temp = wordInfoList.Where(w => w.value.Length >= rootLength);
 
-            var preResult = temp.Where(w => temp.Where(i => i.value.Substring(0, rootLength) ==w.value.Substring(0, rootLength)).Count() >= 4).ToList();
+            var preResult = temp.Where(w => temp.Where(i => i.value.Substring(0, rootLength) == w.value.Substring(0, rootLength)).Count() >= 4).ToList();
 
             preResult.Sort();
-            
+
             return preResult;
 
         }
@@ -220,7 +226,7 @@ namespace DateFormat
 
         private static List<AnnotationItem> GetAnnotationsFromAllDb(string diretoryPath)
         {
-            List<AnnotationItem> fullResult =new List<AnnotationItem>();
+            List<AnnotationItem> fullResult = new List<AnnotationItem>();
 
             DirectoryInfo dir = new DirectoryInfo(diretoryPath);
             var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains(".db"));
@@ -228,77 +234,36 @@ namespace DateFormat
             {
                 fullResult.AddRange(AnnotationReader.Read(file.FullName));
             }
-            
+
             fullResult = AnnotationItem.OnlyUnique(fullResult);
 
 
             return fullResult;
         }
 
-        private static List<AnnotationItem>  FilterByBook(List<AnnotationItem> annotation,string book)
+        private static List<AnnotationItem> FilterByBook(List<AnnotationItem> annotation, string book)
         {
             return annotation.Where(a => a.BookTittle == book).ToList();
         }
 
-        private static List<string> ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
+        private static List<string> ImportLogic(BookProfile profile, List<Tuple<string, string>> dict)
         {
-            List<string> res = AnnotationImporter.ImportLogic(profile,dict);
+            List<string> res = AnnotationImporter.ImportLogic(profile, dict);
 
-            
+
 
             return res;
 
-            
+
             //string resultPath = Path.Combine(basePath, ps);
             //File.WriteAllLines(resultPath, res);
             //File.WriteAllLines(logPath, GetArray(logList));
         }
 
-        
 
-        
-    }
-
-    public class MenuMaster
-    {
-        private Dictionary<int, string> menuDict;
-
-        private int Result;
-
-        public MenuMaster(IEnumerable<string> menuVariants)
-        {
-            menuDict = new Dictionary<int, string>();
-            int i = 1;
-            foreach(string variant in menuVariants)
-            {
-                menuDict.Add(i, variant);
-                i++;
-            }
-        }
-
-        public string GetAnswer(string header = "", bool clear = false)
-        {
-            if (clear)
-                Console.Clear();
-
-            Console.WriteLine(header);
-            foreach(var variant in menuDict)
-            {
-                Console.WriteLine($"{variant.Key} - {variant.Value}");
-            }
-            Result = Int32.Parse(Console.ReadLine());
-
-            return Answer;
-        }
-
-        public string Answer
-        {
-            get
-            {
-                return menuDict.First(i => i.Key == Result).Value;
-            }
-        }
 
 
     }
+
+    
 }
