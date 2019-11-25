@@ -32,7 +32,7 @@ namespace DateFormat
 
             foreach (DataRow r in dTable.Rows)
             {
-                var item = GetAnnotation(r);//AnnotationItem.GetItem(r, profile);
+                var item = GetAnnotation(r);
                 annotationList.Add(item);
             }
 

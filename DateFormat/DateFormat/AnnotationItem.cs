@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DateFormat
 {
-    public class AnnotationItem
+    public class AnnotationItem:IComparable<AnnotationItem>
     {
         public string MarkedText { get => _markedText; set { _markedText = value; CleanMarkedText = value.ToLower().Trim(); } }
         private string _markedText { get; set; }
@@ -68,6 +68,9 @@ namespace DateFormat
             return result;
         }
 
-
+        public int CompareTo(AnnotationItem other)
+        {
+            return this.MarkedText.CompareTo(other.MarkedText);
+        }
     }
 }

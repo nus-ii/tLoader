@@ -23,7 +23,16 @@ namespace DateFormat
             string logPath = Path.Combine(basePath, "Log.txt");
             List<string> logList = File.ReadAllLines(logPath).ToList();
 
-            var annotationList = AnnotationReader.Read(dbCardFileName);
+            List<AnnotationItem> preAnnotationList = AnnotationReader.Read(dbCardFileName);
+            List<AnnotationItem> annotationList = new List<AnnotationItem>();           
+ 
+            foreach(AnnotationItem p in preAnnotationList)
+            {
+                if (annotationList.All(a => a.CleanMarkedText != p.CleanMarkedText))
+                    annotationList.Add(p);
+            }
+
+            annotationList.Sort();
 
             PrintAnnotation(annotationList);
 

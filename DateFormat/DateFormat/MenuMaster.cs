@@ -52,7 +52,6 @@ namespace DateFormat
             int aDigit=1;
             int bDigit=10;
             int sumDigit;
-            int answerDigit;
             DateTime aDate = DateTime.Now;
             Random rhd = new Random(aDate.Hour);
 
@@ -68,7 +67,7 @@ namespace DateFormat
             Console.Write($"If you sure, input answer {aDigit}+{bDigit}=");
             string answer = Console.ReadLine();
 
-            if(Int32.TryParse(answer,out answerDigit)&&answerDigit==sumDigit)
+            if(Int32.TryParse(answer,out int answerDigit)&&answerDigit==sumDigit)
             {
                 Console.WriteLine("Ok...");
                 return true;
