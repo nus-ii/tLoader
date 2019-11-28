@@ -16,46 +16,52 @@ namespace DateFormat
     {
         static void Main(string[] args)
         {
-            var profile = BookProfile.GetProfile(BookProfileType.T2);
-            var l = new LionSupporter();
-            OutputMaster outputMaster = new OutputMaster(@"C:\AllHarry\");
+            try
+            {
+                var profile = BookProfile.GetProfile(BookProfileType.T2);
+                var l = new LionSupporter();
+                OutputMaster outputMaster = new OutputMaster(@"C:\AllHarry\");
 
-            MenuMaster mainMenu = new MenuMaster(new string[] {
+                MenuMaster mainMenu = new MenuMaster(new string[] {
                 "Get new annotation",
                 "Copy annotation to PC",
                 "Analysis annotation",
                 "Print Lingualeo Dictionary"
             });
 
-            mainMenu.GetAnswer("", true);
-            if (mainMenu.Answer == "Get new annotation")
-            {
-                List<Tuple<string, string>> myEnDict = l.Words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
-                List<string> res = ImportLogic(profile, myEnDict);
+                mainMenu.GetAnswer("", true);
+                if (mainMenu.Answer == "Get new annotation")
+                {
+                    List<Tuple<string, string>> myEnDict = l.Words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
+                    List<string> res = ImportLogic(profile, myEnDict);
 
-                var dn = DateTime.Now;
-                string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}";
+                    var dn = DateTime.Now;
+                    string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}";
 
-                outputMaster.Print(res);
-                List<string> resultData = HtmlMaster.GetHtmlList(res);
-                outputMaster.Save(resultData, ps);
+                    outputMaster.Print(res);
+                    List<string> resultData = HtmlMaster.GetHtmlList(res);
+                    outputMaster.Save(resultData, ps);
+                }
+
+                if (mainMenu.Answer == "Copy annotation to PC")
+                {
+                    MenuMaster.GetConfidentAnswer();
+                }
+
+                if (mainMenu.Answer == "Analysis annotation")
+                { AnalysisLogic(@"C:\AllHarry\", outputMaster); }
+
+                if (mainMenu.Answer == "Print Lingualeo Dictionary")
+                {
+                    outputMaster.Print(l.Words);
+                    outputMaster.Save(l.Words, "dict.csv");
+
+                }
             }
-
-            if (mainMenu.Answer== "Copy annotation to PC")
+            catch(Exception ex)
             {
-                MenuMaster.GetConfidentAnswer();
+                Console.WriteLine(ex.Message+" "+ex.StackTrace);
             }
-
-            if (mainMenu.Answer == "Analysis annotation")
-            { AnalysisLogic(@"C:\AllHarry\", outputMaster); }
-
-            if (mainMenu.Answer == "Print Lingualeo Dictionary")
-            {
-                outputMaster.Print(l.Words);
-                outputMaster.Save(l.Words, "dict.csv");
-
-            }
-
             Console.WriteLine("All done!!!!!");
             Console.ReadLine();
         }
@@ -86,17 +92,13 @@ namespace DateFormat
 
             var pages = PagesPerDay(annotationList);
             outputMaster.Save(pages, "PagesPerDay" + "_" + bookShortName);
-
-            //var sameRoot = SameRoot(annotationList);
-            //saveMaster.Save(sameRoot, "SameRoot");
+                        
 
             for (int i = 3; i <= 6; i++)
             {
                 var sameRoot = SameRoot(annotationList, i);
                 outputMaster.Save(sameRoot, $"SameRoot_len{i}");
-            }
-
-            //Console.ReadLine();
+            }            
         }
 
         private static string GetShortName(string book)

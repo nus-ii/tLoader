@@ -19,9 +19,9 @@ namespace DateFormat
 
             dbCardFileName = pretendents.FirstOrDefault(p => p.Drive.VolumeLabel != profile.ReaderDriveLabel).FilePath;
 
-            string basePath = Environment.CurrentDirectory;
-            string logPath = Path.Combine(basePath, "Log.txt");
-            List<string> logList = File.ReadAllLines(logPath).ToList();
+            //string basePath = Environment.CurrentDirectory;
+            //string logPath = Path.Combine(basePath, "Log.txt");
+            //List<string> logList = File.ReadAllLines(logPath).ToList();
 
             List<AnnotationItem> preAnnotationList = AnnotationReader.Read(dbCardFileName);
             List<AnnotationItem> annotationList = new List<AnnotationItem>();           
@@ -45,15 +45,35 @@ namespace DateFormat
 
             List<AnnotationItem> withoutTranslate = Separate(annotationList,dict,out List<Tuple<string,string>> forgotten);
 
-            List<string> resultData = new List<string>();
+            List<string> resultData = new List<string>();           
 
-            resultData.AddRange(withoutTranslate.Select(i=>i.MarkedText));
+            List<Tuple<string, List<AnnotationItem>>> separetedByEnding = separeteByEnding(withoutTranslate,new List<string> {"ing","ed","es","ly"});
 
-            resultData.Add("----------------------------------------------");
+            foreach(var bigT in separetedByEnding)
+            {
+                resultData.Add("----------------------------------------------" + bigT.Item1);
+                resultData.AddRange(bigT.Item2.Select(a=>a.MarkedText));
+            }
+
+            resultData.Add("----------------------------------------------forgotten");
 
             resultData.AddRange(forgotten.Select(i=>$"{i.Item1} - {i.Item2}"));
 
             return resultData;
+        }
+
+        private static List<Tuple<string, List<AnnotationItem>>> separeteByEnding(List<AnnotationItem> annotations, List<string> list)
+        {        
+            
+            List<Tuple<string, List<AnnotationItem>>> result = new List<Tuple<string, List<AnnotationItem>>>();
+
+            result.Add(new Tuple<string, List<AnnotationItem>>("other", annotations.Where(a => list.All(e => !a.CleanMarkedText.EndsWith(e))).ToList()));
+            foreach (string ending in list)
+            {
+                result.Add(new Tuple<string, List<AnnotationItem>>(ending,annotations.Where(a=>a.CleanMarkedText.EndsWith(ending)).ToList()));
+            }           
+
+            return result;
         }
 
         /// <summary>
