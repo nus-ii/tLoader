@@ -33,7 +33,7 @@ namespace DateFormat
                 if (mainMenu.Answer == "Get new annotation")
                 {
                     List<Tuple<string, string>> myEnDict = l.Words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
-                    List<string> res = ImportLogic(profile, myEnDict);
+                    List<string> res = ImportLogic(profile, l.Words);
 
                     var dn = DateTime.Now;
                     string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}";
@@ -248,9 +248,10 @@ namespace DateFormat
             return annotation.Where(a => a.BookTittle == book).ToList();
         }
 
-        private static List<string> ImportLogic(BookProfile profile, List<Tuple<string, string>> dict)
+        private static List<string> ImportLogic(BookProfile profile, List<LionWord> words)
         {
-            List<string> res = AnnotationImporter.ImportLogic(profile, dict);
+            List<AnnotationItem> annotationItems = TBookConnector.GetAnnotations(profile);
+            List<string> res = AnnotationImporter.ImportLogic(annotationItems, words);
 
 
 

@@ -79,6 +79,7 @@
     <Compile Include="MenuMaster.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="tBookConnector.cs" />
     <Compile Include="uHelper.cs" />
     <Compile Include="DataFormat\WordInfo.cs" />
     <Compile Include="Word.cs" />

@@ -9,24 +9,28 @@ namespace DateFormat
 {
     public class AnnotationImporter
     {
+       
 
-        public static List<string> ImportLogic(BookProfile profile,List<Tuple<string,string>> dict)
+        public static List<string> ImportLogic(List<AnnotationItem> annotationItems, List<LionWord> words)
         {
-            Console.Clear();
-            string dbCardFileName;
-            List<DbFileDescription> pretendents = new List<DbFileDescription>();
-            WaitReaderConnection(profile, ref pretendents);
 
-            dbCardFileName = pretendents.FirstOrDefault(p => p.Drive.VolumeLabel != profile.ReaderDriveLabel).FilePath;
+            //---------------------
+            List<Tuple<string, string>> myEnDict = words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
+            return ImportLogic(annotationItems, myEnDict);
+        }
+
+        public static List<string> ImportLogic(List<AnnotationItem> annotationItems, List<Tuple<string,string>> dict)
+        {            
+            
 
             //string basePath = Environment.CurrentDirectory;
             //string logPath = Path.Combine(basePath, "Log.txt");
             //List<string> logList = File.ReadAllLines(logPath).ToList();
 
-            List<AnnotationItem> preAnnotationList = AnnotationReader.Read(dbCardFileName);
+            
             List<AnnotationItem> annotationList = new List<AnnotationItem>();           
  
-            foreach(AnnotationItem p in preAnnotationList)
+            foreach(AnnotationItem p in annotationItems)
             {
                 if (annotationList.All(a => a.CleanWord != p.CleanWord))
                     annotationList.Add(p);
@@ -116,58 +120,9 @@ namespace DateFormat
             }
         }
 
-        private static void WaitReaderConnection(BookProfile profile, ref List<DbFileDescription> pretendents)
-        {
+        
 
-            while (!GetFilePath(profile, ref pretendents))
-            {
-                Console.Clear();
-                Console.WriteLine("Reader not found!");
-                System.Threading.Thread.Sleep(250);
-            }
-            System.Threading.Thread.Sleep(250);
-            Console.Clear();
-            Console.WriteLine("Reader ready for work, press any key!");
-            Console.ReadLine();
-        }
-
-        private static bool GetFilePath(BookProfile profile, ref List<DbFileDescription> dbPretendents)
-        {
-            DriveInfo[] allDrives = DriveInfo.GetDrives();
-            List<DriveInfo> pretendent = new List<DriveInfo>();
-
-            foreach (var d in allDrives)
-            {
-                if (File.Exists(Path.Combine(d.RootDirectory.FullName, profile.BookDbPath)))
-                {
-                    pretendent.Add(d);
-                }
-            }
-
-            if (pretendent.Count != 0)
-            {
-
-                foreach (var p in pretendent)
-                {
-                    dbPretendents.Add(new DbFileDescription
-                    {
-                        Drive = p,
-                        FilePath = Path.Combine(p.RootDirectory.FullName, profile.BookDbPath)
-                    });
-                }
-                //DriveInfo readerPretendent = pretendent.FirstOrDefault(p => p.VolumeLabel == profile.readerDriveLabel);
-                //reader = Path.Combine(readerPretendent.RootDirectory.FullName, profile.bookDbPath);
-
-                //DriveInfo cardPretendent = pretendent.FirstOrDefault(p => p.VolumeLabel != profile.readerDriveLabel);                
-                //card = Path.Combine(cardPretendent.RootDirectory.FullName, profile.bookDbPath);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        
 
         private static string[] GetArray(List<string> logList)
         {

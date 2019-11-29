@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace DateFormat
 {
-    public class LionWord:Word,IDataObject
+    public class LionWord : Word, IDataObject
     {
-        public string Word { get {return _word } set { _word = value;_cleanWord = value.ToLower().Trim(); } }
+        public string Word { get { return _word; } set { _word = value; _cleanWord = value.ToLower().Trim(); } }
 
         private string _word;
 
