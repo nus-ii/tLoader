@@ -164,13 +164,13 @@ namespace DateFormat
 
             foreach (var a in annotationList)
             {
-                if (wordInfoList.Count == 0 || !wordInfoList.Any(w => w.value == a.CleanMarkedText))
+                if (wordInfoList.Count == 0 || !wordInfoList.Any(w => w.value == a.CleanWord))
                 {
-                    wordInfoList.Add(new WordInfo(a.CleanMarkedText));
+                    wordInfoList.Add(new WordInfo(a.CleanWord));
                 }
                 else
                 {
-                    var w = wordInfoList.FirstOrDefault(i => i.value == a.CleanMarkedText);
+                    var w = wordInfoList.FirstOrDefault(i => i.value == a.CleanWord);
                     if (w != null)
                         w.number++;
                 }

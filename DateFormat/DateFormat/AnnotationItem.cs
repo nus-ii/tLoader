@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace DateFormat
 {
-    public class AnnotationItem:IComparable<AnnotationItem>
+    public class AnnotationItem : Word, IComparable<AnnotationItem>
     {
-        public string MarkedText { get => _markedText; set { _markedText = value; CleanMarkedText = value.ToLower().Trim(); } }
+        public string MarkedText { get => _markedText; set { _markedText = value; _cleanWord = value.ToLower().Trim(); } }
         private string _markedText { get; set; }
         public DateTime AddedDate { get; set; }
         public int Page { get; set; }
@@ -19,18 +19,26 @@ namespace DateFormat
         {
             get
             {
-                if (this.CleanMarkedText.Split(' ').Length != 1)
+                if (this.CleanWord.Split(' ').Length != 1)
                     return true;
 
                 return false;
             }
         }
 
-        public string CleanMarkedText { get; private set; }
+        new public string CleanWord
+        {
+            get
+            {
+                return _cleanWord;
+            }
+        }
 
+        private string _cleanWord;
+        
         public bool ValueEqual(AnnotationItem another)
         {
-            if (this.CleanMarkedText == another.CleanMarkedText)
+            if (this.CleanWord == another.CleanWord)
                 return true;
 
             return false;
@@ -70,7 +78,7 @@ namespace DateFormat
 
         public int CompareTo(AnnotationItem other)
         {
-            return this.MarkedText.CompareTo(other.MarkedText);
+            return this.CleanWord.CompareTo(other.CleanWord);
         }
     }
 }

@@ -7,8 +7,8 @@ using DateFormat.BookProfileFolder;
 
 namespace DateFormat
 {
-    public enum BookProfileType {T2 }
-    public class BookProfile:BookProfileBase
+    public enum BookProfileType { T2 }
+    public class BookProfile : BookProfileBase
     {
         public BookProfileType BookType { get; set; }
         public string BookDbPath { get; set; }

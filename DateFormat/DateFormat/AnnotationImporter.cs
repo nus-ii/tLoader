@@ -28,7 +28,7 @@ namespace DateFormat
  
             foreach(AnnotationItem p in preAnnotationList)
             {
-                if (annotationList.All(a => a.CleanMarkedText != p.CleanMarkedText))
+                if (annotationList.All(a => a.CleanWord != p.CleanWord))
                     annotationList.Add(p);
             }
 
@@ -67,10 +67,10 @@ namespace DateFormat
             
             List<Tuple<string, List<AnnotationItem>>> result = new List<Tuple<string, List<AnnotationItem>>>();
 
-            result.Add(new Tuple<string, List<AnnotationItem>>("other", annotations.Where(a => list.All(e => !a.CleanMarkedText.EndsWith(e))).ToList()));
+            result.Add(new Tuple<string, List<AnnotationItem>>("other", annotations.Where(a => list.All(e => !a.CleanWord.EndsWith(e))).ToList()));
             foreach (string ending in list)
             {
-                result.Add(new Tuple<string, List<AnnotationItem>>(ending,annotations.Where(a=>a.CleanMarkedText.EndsWith(ending)).ToList()));
+                result.Add(new Tuple<string, List<AnnotationItem>>(ending,annotations.Where(a=>a.CleanWord.EndsWith(ending)).ToList()));
             }           
 
             return result;
