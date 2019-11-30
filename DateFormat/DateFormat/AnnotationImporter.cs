@@ -8,29 +8,13 @@ using System.IO;
 namespace DateFormat
 {
     public class AnnotationImporter
-    {
-       
+    {      
 
         public static List<string> ImportLogic(List<AnnotationItem> annotationItems, List<LionWord> words)
         {
+            List<AnnotationItem> annotationList = new List<AnnotationItem>();
 
-            //---------------------
-            List<Tuple<string, string>> myEnDict = words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
-            return ImportLogic(annotationItems, myEnDict);
-        }
-
-        public static List<string> ImportLogic(List<AnnotationItem> annotationItems, List<Tuple<string,string>> dict)
-        {            
-            
-
-            //string basePath = Environment.CurrentDirectory;
-            //string logPath = Path.Combine(basePath, "Log.txt");
-            //List<string> logList = File.ReadAllLines(logPath).ToList();
-
-            
-            List<AnnotationItem> annotationList = new List<AnnotationItem>();           
- 
-            foreach(AnnotationItem p in annotationItems)
+            foreach (AnnotationItem p in annotationItems)
             {
                 if (annotationList.All(a => a.CleanWord != p.CleanWord))
                     annotationList.Add(p);
@@ -38,47 +22,109 @@ namespace DateFormat
 
             annotationList.Sort();
 
-            PrintAnnotation(annotationList);
+            List<AnnotationItem> withoutTranslate = Separate(annotationList, words, out List<LionWord> forgotten);
 
-            Console.WriteLine($"Annotation number: {annotationList.Count}");
-            Console.ReadLine();
+            List<string> endings = new List<string> { "ing", "ed", "es", "ly", "ful", "les" };
 
-            //var filtredData = GetSource(annotationList, ref logList);
+            List<Tuple<string, List<AnnotationItem>>> separetedByEnding = SepareteByEnding<AnnotationItem>(withoutTranslate, endings);
 
-            //
+            List<Tuple<string, List<LionWord>>> separetedByEndingForgotten = SepareteByEnding<LionWord>(forgotten, endings);
 
-            List<AnnotationItem> withoutTranslate = Separate(annotationList,dict,out List<Tuple<string,string>> forgotten);
+            string blankHeader = "---------------------------------------------------";
 
-            List<string> resultData = new List<string>();           
+            List<string> resultData = new List<string>();
 
-            List<Tuple<string, List<AnnotationItem>>> separetedByEnding = separeteByEnding(withoutTranslate,new List<string> {"ing","ed","es","ly"});
-
-            foreach(var bigT in separetedByEnding)
+            foreach(var i in separetedByEnding)
             {
-                resultData.Add("----------------------------------------------" + bigT.Item1);
-                resultData.AddRange(bigT.Item2.Select(a=>a.MarkedText));
+                resultData.Add(blankHeader + i.Item1);
+                resultData.AddRange(i.Item2.Select(n=>n.MarkedText));
             }
 
-            resultData.Add("----------------------------------------------forgotten");
-
-            resultData.AddRange(forgotten.Select(i=>$"{i.Item1} - {i.Item2}"));
+            foreach (var i in separetedByEndingForgotten)
+            {
+                resultData.Add(blankHeader + i.Item1);
+                resultData.AddRange(i.Item2.Select(n => n.CleanWord+" - "+n.Translate));
+            }
 
             return resultData;
+
+            ////---------------------
+            //List<Tuple<string, string>> myEnDict = words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
+            //return ImportLogic(annotationItems, myEnDict);
         }
 
-        private static List<Tuple<string, List<AnnotationItem>>> separeteByEnding(List<AnnotationItem> annotations, List<string> list)
-        {        
+        //public static List<string> ImportLogic(List<AnnotationItem> annotationItems, List<Tuple<string,string>> dict)
+        //{            
             
-            List<Tuple<string, List<AnnotationItem>>> result = new List<Tuple<string, List<AnnotationItem>>>();
 
-            result.Add(new Tuple<string, List<AnnotationItem>>("other", annotations.Where(a => list.All(e => !a.CleanWord.EndsWith(e))).ToList()));
-            foreach (string ending in list)
+        //    ////string basePath = Environment.CurrentDirectory;
+        //    ////string logPath = Path.Combine(basePath, "Log.txt");
+        //    ////List<string> logList = File.ReadAllLines(logPath).ToList();
+
+            
+        //    //List<AnnotationItem> annotationList = new List<AnnotationItem>();           
+ 
+        //    //foreach(AnnotationItem p in annotationItems)
+        //    //{
+        //    //    if (annotationList.All(a => a.CleanWord != p.CleanWord))
+        //    //        annotationList.Add(p);
+        //    //}
+
+        //    //annotationList.Sort();
+
+        //    //List<AnnotationItem> withoutTranslate = Separate(annotationList,dict,out List<Tuple<string,string>> forgotten);
+
+        //    //List<string> resultData = new List<string>();           
+
+        //    //List<Tuple<string, List<AnnotationItem>>> separetedByEnding = separeteByEnding(withoutTranslate,new List<string> {"ing","ed","es","ly","ful","les"});
+
+        //    //foreach(var bigT in separetedByEnding)
+        //    //{
+        //    //    resultData.Add("----------------------------------------------" + bigT.Item1);
+        //    //    resultData.AddRange(bigT.Item2.Select(a=>a.MarkedText));
+        //    //}
+
+        //    //resultData.Add("----------------------------------------------forgotten");
+
+        //    //resultData.AddRange(forgotten.Select(i=>$"{i.Item1} - {i.Item2}"));
+
+        //    //return resultData;
+        //}
+
+        //private static List<Tuple<string, List<AnnotationItem>>> SepareteByEnding(List<AnnotationItem> annotations, List<string> list)
+        //{
+
+        //    //List<Tuple<string, List<AnnotationItem>>> result = new List<Tuple<string, List<AnnotationItem>>>
+        //    //{
+        //    //    new Tuple<string, List<AnnotationItem>>("other", annotations.Where(a => list.All(e => !a.CleanWord.EndsWith(e))).ToList())
+        //    //};
+        //    //foreach (string ending in list)
+        //    //{
+        //    //    result.Add(new Tuple<string, List<AnnotationItem>>(ending,annotations.Where(a=>a.CleanWord.EndsWith(ending)).ToList()));
+        //    //}           
+
+        //    //return result;
+        //}
+
+        private static List<Tuple<string, List<T>>> SepareteByEnding<T>(List<T> words, List<string> endings) where T:Word
+        {
+
+            List<Tuple<string, List<T>>> result = new List<Tuple<string, List<T>>>();
+
+            string otherHeader = "NO: " + string.Join("_", endings);
+
+            var t=words.Where(w => endings.All(e => !w.CleanWord.EndsWith(e)));
+            var ec = t.ToList();
+
+            result.Add(new Tuple<string, List<T>>(otherHeader, ec));
+            foreach (string ending in endings)
             {
-                result.Add(new Tuple<string, List<AnnotationItem>>(ending,annotations.Where(a=>a.CleanWord.EndsWith(ending)).ToList()));
-            }           
+                result.Add(new Tuple<string, List<T>>(ending, words.Where(w => w.CleanWord.EndsWith(ending)).ToList()));
+            }
 
             return result;
         }
+
 
         /// <summary>
         /// Разделение входящих анотаций на забытые и новые
@@ -87,42 +133,54 @@ namespace DateFormat
         /// <param name="dict">Словарь знакомых слов</param>
         /// <param name="forgotten">Список забытых слов с переводом</param>
         /// <returns></returns>
-        private static List<AnnotationItem> Separate(List<AnnotationItem> annotationList, 
-            List<Tuple<string, string>> dict, 
-            out List<Tuple<string, string>> forgotten)
+        //private static List<AnnotationItem> Separate(List<AnnotationItem> annotationList, 
+        //    List<Tuple<string, string>> dict, 
+        //    out List<Tuple<string, string>> forgotten)
+        //{
+        //    //List<AnnotationItem> result = new List<AnnotationItem>();
+        //    //forgotten = new List<Tuple<string, string>>();
+
+        //    //List<Tuple<string, string>> normalDict = dict.Select(i => new Tuple<string, string>(i.Item1.ToLower().Trim(), i.Item2)).ToList();
+
+        //    //foreach(AnnotationItem item in annotationList)
+        //    //{
+        //    //    var t = normalDict.FirstOrDefault(i => i.Item1 == item.MarkedText.ToLower().Trim());
+        //    //    if(t!=null)
+        //    //    {
+        //    //        forgotten.Add(t);
+        //    //    }
+        //    //    else
+        //    //    {
+        //    //        result.Add(item);
+        //    //    }
+        //    //}
+
+        //    //return result;
+        //}
+
+        private static List<AnnotationItem> Separate(List<AnnotationItem> annotationList,
+            List<LionWord> dict,
+            out List<LionWord> forgotten)
         {
             List<AnnotationItem> result = new List<AnnotationItem>();
-            forgotten = new List<Tuple<string, string>>();
+            forgotten = new List<LionWord>();      
 
-            List<Tuple<string, string>> normalDict = dict.Select(i => new Tuple<string, string>(i.Item1.ToLower().Trim(), i.Item2)).ToList();
-
-            foreach(AnnotationItem item in annotationList)
+            foreach (AnnotationItem item in annotationList)
             {
-                var t = normalDict.FirstOrDefault(i => i.Item1 == item.MarkedText.ToLower().Trim());
-                if(t!=null)
+                LionWord dictItem = dict.FirstOrDefault(i=>i.CleanWord==item.CleanWord);
+
+                if (dictItem == null)
                 {
-                    forgotten.Add(t);
+                    result.Add(item);
                 }
                 else
                 {
-                    result.Add(item);
+                    forgotten.Add(dictItem);
                 }
             }
 
             return result;
         }
-
-        private static void PrintAnnotation(List<AnnotationItem> annotationList)
-        {
-            foreach (var item in annotationList)
-            {
-                Console.WriteLine(item.ToCsvString());
-            }
-        }
-
-        
-
-        
 
         private static string[] GetArray(List<string> logList)
         {

@@ -26,7 +26,7 @@ namespace DateFormat
             }
         }
 
-        new public string CleanWord
+        override public string CleanWord
         {
             get
             {

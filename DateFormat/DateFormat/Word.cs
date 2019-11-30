@@ -8,6 +8,6 @@ namespace DateFormat
 {
     public class Word
     {
-        public string CleanWord { get; }
+        virtual public string CleanWord { get; }
     }
 }

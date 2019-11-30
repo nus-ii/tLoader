@@ -15,13 +15,7 @@ namespace DateFormat
 
         public string Translate { get; set; }
 
-        new public string CleanWord
-        {
-            get
-            {
-                return Word.ToLower().Trim();
-            }
-        }
+        override public string CleanWord => Word.ToLower().Trim();
 
         private string _cleanWord;
 
