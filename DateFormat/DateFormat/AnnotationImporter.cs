@@ -15,16 +15,28 @@ namespace DateFormat
 
             foreach (AnnotationItem item in newAnnotations)
             {
-                if (annotationList.All(a => a.CleanWord != item.CleanWord) && !exWord.Contains(item.CleanWord))
+                if (annotationList.All(a => a.CleanWord != item.CleanWord))
                 {
                     annotationList.Add(item);
-                    exWord.Add(item.CleanWord);
                 }
             }
 
             annotationList.Sort();
 
-            List<AnnotationItem> withoutTranslate = Separate(annotationList, words, out List<LionWord> forgotten);
+            List<AnnotationItem> withoutTranslateWithEx = Separate(annotationList, words, out List<LionWord> forgotten);
+            List<AnnotationItem> withoutTranslate = new List<AnnotationItem>();
+
+            foreach(AnnotationItem item in withoutTranslateWithEx)
+            {
+                if (!exWord.Contains(item.CleanWord))
+                {
+                    withoutTranslate.Add(item);                    
+                }
+                else
+                {
+                    exWord.Add(item.CleanWord);
+                }
+            }
 
             List<string> endings = new List<string> { "ing", "ed", "es", "ly", "ful", "les" };
 
