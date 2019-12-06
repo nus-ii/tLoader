@@ -31,8 +31,8 @@ namespace DateFormat
 
                 mainMenu.GetAnswer("", true);
                 if (mainMenu.Answer == "Get new annotation")
-                {                   
-                    List<string> importResult = ImportLogic(profile, l.Words);                    
+                {
+                    List<string> importResult = ImportLogic(profile, l.Words);
                     string timeString = DateTime.Now.ToString("dd-MM-yy_hh-mm");
 
                     outputMaster.Print(importResult);
@@ -50,14 +50,36 @@ namespace DateFormat
 
                 if (mainMenu.Answer == "Print Lingualeo Dictionary")
                 {
-                    outputMaster.Print(l.Words.Where(w=>w.CleanWord.Contains(' ')).ToList());
+
+                    //int h = Console.LargestWindowHeight;
+                    //int wi = Console.LargestWindowWidth;
+                    //Console.BackgroundColor = ConsoleColor.Black;
+                    //Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    //Console.SetWindowSize(wi, h);
+
+                    //Console.Clear();
+                    //Console.WriteLine("99");
+                    //for (int i = 0; i < h - 3; i++)
+                    //{
+                    //    string temp = "";
+                    //    for (int y = 0; y < wi - 4; y++)
+                    //    {
+                    //        temp += "-";
+                    //    }
+                    //    Console.WriteLine(temp);
+                    //}
+                    //Console.ReadLine();
+
+
+
+                    outputMaster.Print(l.Words.Where(w => w.CleanWord.Contains(' ')).Take(10).ToList());
                     outputMaster.Save(l.Words, "dict");
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.Message+" "+ex.StackTrace);
+                Console.WriteLine(ex.Message + " " + ex.StackTrace);
             }
             Console.WriteLine("All done!!!!!");
             Console.ReadLine();
@@ -89,13 +111,13 @@ namespace DateFormat
 
             var pages = PagesPerDay(annotationList);
             outputMaster.Save(pages, "PagesPerDay" + "_" + bookShortName);
-                        
+
 
             for (int i = 3; i <= 6; i++)
             {
                 var sameRoot = SameRoot(annotationList, i);
                 outputMaster.Save(sameRoot, $"SameRoot_len{i}");
-            }            
+            }
         }
 
         private static string GetShortName(string book)
@@ -249,7 +271,7 @@ namespace DateFormat
         {
             List<AnnotationItem> annotationItems = TBookConnector.GetAnnotations(profile);
             List<string> exWord = File.ReadLines(@"C:/AllHarry/exWord.txt").ToList();
-            List<string> result=AnnotationImporter.Import(annotationItems, words,ref exWord);
+            List<string> result = AnnotationImporter.Import(annotationItems, words, ref exWord);
             File.WriteAllLines(@"C:\AllHarry\exWord.txt", exWord);
             return result;
         }
