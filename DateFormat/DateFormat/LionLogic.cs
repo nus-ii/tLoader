@@ -15,7 +15,7 @@ namespace DateFormat
         private string _dictPath;
         public List<LionWord> Words { get; }
 
-        public LionSupporter(string dictPath = @"C:\AllHarry\lingualeo_dict.csv")
+        public LionSupporter(string dictPath = @"C:\AllHarry\lingualeo.txt")
         {
             _dictPath = dictPath;
 
@@ -28,20 +28,5 @@ namespace DateFormat
                     Translate = a[1].Trim('"')
                 }).ToList();
         }
-
-        //public void Print()
-        //{
-
-        //    int i = 0;
-        //    foreach (var w in Words)
-        //    {
-        //        Console.WriteLine($"{w.Word} - {w.Translate}");
-        //        i++;
-        //        if (i == 100)
-        //            break;
-        //    }
-        //    Console.Write(Words.Count());
-
-        //}
     }
 }

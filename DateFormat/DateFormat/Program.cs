@@ -53,8 +53,8 @@ namespace DateFormat
 
                 if (mainMenu.Answer == "Print Lingualeo Dictionary")
                 {
-                    outputMaster.Print(l.Words);
-                    outputMaster.Save(l.Words, "dict.csv");
+                    outputMaster.Print(l.Words.Where(w=>w.CleanWord.Contains(' ')).ToList());
+                    outputMaster.Save(l.Words, "dict");
 
                 }
             }
