@@ -8,7 +8,7 @@ using System.IO;
 using System.Data;
 using System.Management;
 using DataFormat;
-//Работа с датой
+
 
 namespace DateFormat
 {
@@ -31,16 +31,13 @@ namespace DateFormat
 
                 mainMenu.GetAnswer("", true);
                 if (mainMenu.Answer == "Get new annotation")
-                {
-                    List<Tuple<string, string>> myEnDict = l.Words.Select(i => new Tuple<string, string>(i.Word, i.Translate)).ToList();
-                    List<string> res = ImportLogic(profile, l.Words);
+                {                   
+                    List<string> importResult = ImportLogic(profile, l.Words);                    
+                    string timeString = DateTime.Now.ToString("dd-MM-yy_hh-mm");
 
-                    var dn = DateTime.Now;
-                    string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}";
-
-                    outputMaster.Print(res);
-                    List<string> resultData = HtmlMaster.GetHtmlList(res);
-                    outputMaster.Save(resultData, ps);
+                    outputMaster.Print(importResult);
+                    List<string> resultData = HtmlMaster.GetHtmlList(importResult);
+                    outputMaster.Save(resultData, timeString);
                 }
 
                 if (mainMenu.Answer == "Copy annotation to PC")
@@ -251,22 +248,10 @@ namespace DateFormat
         private static List<string> ImportLogic(BookProfile profile, List<LionWord> words)
         {
             List<AnnotationItem> annotationItems = TBookConnector.GetAnnotations(profile);
-            List<string> res = AnnotationImporter.ImportLogic(annotationItems, words);
-
-
-
-            return res;
-
-
-            //string resultPath = Path.Combine(basePath, ps);
-            //File.WriteAllLines(resultPath, res);
-            //File.WriteAllLines(logPath, GetArray(logList));
+            List<string> exWord = File.ReadLines(@"C:/AllHarry/exWord.txt").ToList();
+            List<string> result=AnnotationImporter.Import(annotationItems, words,ref exWord);
+            File.WriteAllLines(@"C:\AllHarry\exWord.txt", exWord);
+            return result;
         }
-
-
-
-
-    }
-
-    
-}
+    } //класс
+}//пространство имён

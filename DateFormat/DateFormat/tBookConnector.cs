@@ -62,12 +62,6 @@ namespace DateFormat
                         FilePath = Path.Combine(p.RootDirectory.FullName, profile.BookDbPath)
                     });
                 }
-                //DriveInfo readerPretendent = pretendent.FirstOrDefault(p => p.VolumeLabel == profile.readerDriveLabel);
-                //reader = Path.Combine(readerPretendent.RootDirectory.FullName, profile.bookDbPath);
-
-                //DriveInfo cardPretendent = pretendent.FirstOrDefault(p => p.VolumeLabel != profile.readerDriveLabel);                
-                //card = Path.Combine(cardPretendent.RootDirectory.FullName, profile.bookDbPath);
-
                 return true;
             }
             else
