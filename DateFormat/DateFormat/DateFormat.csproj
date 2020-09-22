@@ -67,7 +67,6 @@
     <Compile Include="AnnotationItem.cs" />
     <Compile Include="AnnotationReader.cs" />
     <Compile Include="BookProfileFolder\BookProfile.cs" />
-    <Compile Include="BookProfileFolder\BookProfileBase.cs" />
     <Compile Include="CsvSaveMaster.cs" />
     <Compile Include="DataFormat\IDataObject.cs" />
     <Compile Include="DbFileName.cs" />

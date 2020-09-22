@@ -18,7 +18,7 @@ namespace DateFormat
         {
             try
             {
-                var profile = BookProfile.GetProfile(BookProfileType.T2);
+                var profile = BookProfile.GetProfile();
                 var l = new LionSupporter();
                 OutputMaster outputMaster = new OutputMaster(@"C:\AllHarry\");
 
