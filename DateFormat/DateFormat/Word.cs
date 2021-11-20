@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DateFormat.BookProfileFolder
+namespace DateFormat
 {
-	public class BookProfileBase
-	{
-	}
+    public class Word
+    {
+        virtual public string CleanWord { get; }
+    }
 }

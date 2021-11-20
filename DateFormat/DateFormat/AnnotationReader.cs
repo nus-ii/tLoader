@@ -14,7 +14,7 @@ namespace DateFormat
     {
         public static List<AnnotationItem> Read(string path)
         {
-            #region MyRegion
+            
             SQLiteConnection m_dbConn;
             SQLiteCommand m_sqlCmd;
             m_dbConn = new SQLiteConnection();
@@ -26,13 +26,12 @@ namespace DateFormat
             SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
             DataTable dTable = new DataTable();
             adapter.Fill(dTable);
-            #endregion
 
             List<AnnotationItem> annotationList = new List<AnnotationItem>();
 
             foreach (DataRow r in dTable.Rows)
             {
-                var item = GetAnnotation(r);//AnnotationItem.GetItem(r, profile);
+                var item = GetAnnotation(r);
                 annotationList.Add(item);
             }
 
@@ -51,7 +50,7 @@ namespace DateFormat
         }
     }
 
-    public static class sqlHelper
+    public static class SqlHelper
     {
         public static string Get(this DataRow row, string header)
         {

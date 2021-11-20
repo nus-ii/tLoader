@@ -8,7 +8,7 @@ using System.IO;
 using System.Data;
 using System.Management;
 using DataFormat;
-//Работа с датой
+
 
 namespace DateFormat
 {
@@ -16,35 +16,76 @@ namespace DateFormat
     {
         static void Main(string[] args)
         {
-            var profile = BookProfile.GetProfile(BookProfileType.T2);
-            var l = new LionSupporter();
-            OutputMaster outputMaster = new OutputMaster(@"C:\AllHarry\");
+            try
+            {
+                var profile = BookProfile.GetProfile();
+                var l = new LionSupporter();
+                OutputMaster outputMaster = new OutputMaster(@"C:\AllHarry\");
 
-            MenuMaster mainMenu = new MenuMaster(new string[] {
-                "Import annotation",
+                MenuMaster mainMenu = new MenuMaster(new string[] {
+                "Get new annotation",
+                "Copy annotation to PC",
                 "Analysis annotation",
                 "Print Lingualeo Dictionary"
             });
-            
-            mainMenu.GetAnswer("",true);
-            if (mainMenu.Answer == "Import annotation")
-                ImportLogic(profile);
 
-            if (mainMenu.Answer == "Analysis annotation")
-                AnalysisLogic(@"C:\AllHarry\", outputMaster);
+                mainMenu.GetAnswer("", true);
+                if (mainMenu.Answer == "Get new annotation")
+                {
+                    List<string> importResult = ImportLogic(profile, l.Words);
+                    string timeString = DateTime.Now.ToString("dd-MM-yy_hh-mm");
 
-            if (mainMenu.Answer == "Print Lingualeo Dictionary")
-            {
-                outputMaster.Print(l.Words);
-                outputMaster.Save(l.Words, "dict.csv");
-               
+                    outputMaster.Print(importResult);
+                    List<string> resultData = HtmlMaster.GetHtmlList(importResult);
+                    outputMaster.Save(resultData, timeString);
+                }
+
+                if (mainMenu.Answer == "Copy annotation to PC")
+                {
+                    MenuMaster.GetConfidentAnswer();
+                }
+
+                if (mainMenu.Answer == "Analysis annotation")
+                { AnalysisLogic(@"C:\AllHarry\", outputMaster); }
+
+                if (mainMenu.Answer == "Print Lingualeo Dictionary")
+                {
+
+                    //int h = Console.LargestWindowHeight;
+                    //int wi = Console.LargestWindowWidth;
+                    //Console.BackgroundColor = ConsoleColor.Black;
+                    //Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    //Console.SetWindowSize(wi, h);
+
+                    //Console.Clear();
+                    //Console.WriteLine("99");
+                    //for (int i = 0; i < h - 3; i++)
+                    //{
+                    //    string temp = "";
+                    //    for (int y = 0; y < wi - 4; y++)
+                    //    {
+                    //        temp += "-";
+                    //    }
+                    //    Console.WriteLine(temp);
+                    //}
+                    //Console.ReadLine();
+
+
+
+                    outputMaster.Print(l.Words.Where(w => w.CleanWord.Contains(' ')).Take(10).ToList());
+                    outputMaster.Save(l.Words, "dict");
+
+                }
             }
-
-            Console.WriteLine("All done!");
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " " + ex.StackTrace);
+            }
+            Console.WriteLine("All done!!!!!");
             Console.ReadLine();
         }
 
-        private static void AnalysisLogic(string diretoryPath,OutputMaster outputMaster)
+        private static void AnalysisLogic(string diretoryPath, OutputMaster outputMaster)
         {
 
             List<AnnotationItem> annotationList = GetAnnotationsFromAllDb(diretoryPath);
@@ -55,42 +96,38 @@ namespace DateFormat
 
             string bookAnswer = bookMenuMaster.GetAnswer("Choice book for analysis", true);
 
-            if(bookAnswer!="All")
-            annotationList = FilterByBook(annotationList, bookAnswer);
+            if (bookAnswer != "All")
+                annotationList = FilterByBook(annotationList, bookAnswer);
 
             string bookShortName = GetShortName(bookAnswer);
 
-                        
 
-            var uniq=UniqAnnotaion(annotationList);
-            outputMaster.Save(uniq,"UniqAnnotaion"+"_"+ bookShortName);
 
-            var words=WordsAddings(annotationList);
+            var uniq = UniqAnnotaion(annotationList);
+            outputMaster.Save(uniq, "UniqAnnotaion" + "_" + bookShortName);
+
+            var words = WordsAddings(annotationList);
             outputMaster.Save(words, "WordsRepeat" + "_" + bookShortName);
 
-            var pages=PagesPerDay(annotationList);
+            var pages = PagesPerDay(annotationList);
             outputMaster.Save(pages, "PagesPerDay" + "_" + bookShortName);
 
-            //var sameRoot = SameRoot(annotationList);
-            //saveMaster.Save(sameRoot, "SameRoot");
 
-            for(int i = 3; i <= 6; i++)
+            for (int i = 3; i <= 6; i++)
             {
-                var sameRoot = SameRoot(annotationList,i);
+                var sameRoot = SameRoot(annotationList, i);
                 outputMaster.Save(sameRoot, $"SameRoot_len{i}");
             }
-
-            //Console.ReadLine();
         }
 
         private static string GetShortName(string book)
         {
             book = book.ToLower().Trim();
             string temp = "";
-            
-            foreach(char c in book)
+
+            foreach (char c in book)
             {
-                if (char.IsLetter(c)||c==' ')
+                if (char.IsLetter(c) || c == ' ')
                 {
                     temp += c.ToString();
                 }
@@ -98,14 +135,14 @@ namespace DateFormat
 
             var splittedTemp = temp.Split(' ');
             string result = "";
-            for(int i = splittedTemp.Count()-1 ; i >= 0; i--)
+            for (int i = splittedTemp.Count() - 1; i >= 0; i--)
             {
-                
+
                 result = splittedTemp[i] + "_" + result;
 
                 if (splittedTemp[i] == "the")
                     break;
-            }          
+            }
             return result.Trim('_');
         }
 
@@ -146,13 +183,13 @@ namespace DateFormat
 
             foreach (var a in annotationList)
             {
-                if (wordInfoList.Count == 0 || !wordInfoList.Any(w => w.value == a.CleanMarkedText))
+                if (wordInfoList.Count == 0 || !wordInfoList.Any(w => w.value == a.CleanWord))
                 {
-                    wordInfoList.Add(new WordInfo(a.CleanMarkedText));
+                    wordInfoList.Add(new WordInfo(a.CleanWord));
                 }
                 else
                 {
-                    var w = wordInfoList.FirstOrDefault(i => i.value == a.CleanMarkedText);
+                    var w = wordInfoList.FirstOrDefault(i => i.value == a.CleanWord);
                     if (w != null)
                         w.number++;
                 }
@@ -161,16 +198,16 @@ namespace DateFormat
         }
 
 
-        private static List<WordInfo> SameRoot(List<AnnotationItem> annotationList,int rootLength=4)
+        private static List<WordInfo> SameRoot(List<AnnotationItem> annotationList, int rootLength = 4)
         {
             List<WordInfo> wordInfoList = WordsAddings(annotationList);
 
-            var temp = wordInfoList.Where(w=>w.value.Length>=rootLength);
+            var temp = wordInfoList.Where(w => w.value.Length >= rootLength);
 
-            var preResult = temp.Where(w => temp.Where(i => i.value.Substring(0, rootLength) ==w.value.Substring(0, rootLength)).Count() >= 4).ToList();
+            var preResult = temp.Where(w => temp.Where(i => i.value.Substring(0, rootLength) == w.value.Substring(0, rootLength)).Count() >= 4).ToList();
 
             preResult.Sort();
-            
+
             return preResult;
 
         }
@@ -210,7 +247,7 @@ namespace DateFormat
 
         private static List<AnnotationItem> GetAnnotationsFromAllDb(string diretoryPath)
         {
-            List<AnnotationItem> fullResult =new List<AnnotationItem>();
+            List<AnnotationItem> fullResult = new List<AnnotationItem>();
 
             DirectoryInfo dir = new DirectoryInfo(diretoryPath);
             var fileList = dir.GetFiles().Where(i => i.Name.Contains("book") && i.Name.Contains(".db"));
@@ -218,179 +255,25 @@ namespace DateFormat
             {
                 fullResult.AddRange(AnnotationReader.Read(file.FullName));
             }
-            
+
             fullResult = AnnotationItem.OnlyUnique(fullResult);
 
 
             return fullResult;
         }
 
-        private static List<AnnotationItem>  FilterByBook(List<AnnotationItem> annotation,string book)
+        private static List<AnnotationItem> FilterByBook(List<AnnotationItem> annotation, string book)
         {
             return annotation.Where(a => a.BookTittle == book).ToList();
         }
 
-        private static void ImportLogic(BookProfile profile)
+        private static List<string> ImportLogic(BookProfile profile, List<LionWord> words)
         {
-            Console.Clear();
-            string dbCardFileName;
-            List<DbFileDescription> pretendents = new List<DbFileDescription>();
-            WaitReaderConnection(profile, ref pretendents);
-
-            dbCardFileName = pretendents.FirstOrDefault(p => p.Drive.VolumeLabel != profile.ReaderDriveLabel).FilePath;
-
-            string basePath = Environment.CurrentDirectory;
-            string logPath = Path.Combine(basePath, "Log.txt");
-            List<string> logList = File.ReadAllLines(logPath).ToList();
-
-            var annotationList = AnnotationReader.Read(dbCardFileName);
-
-            PrintAnnotation(annotationList);
-
-            Console.WriteLine($"Annotation number: {annotationList.Count}");
-            Console.ReadLine();
-
-            var filtredData = GetSource(annotationList, ref logList);
-
-            var res = HtmlMaster.GetHtmlList(filtredData);
-
-            var dn = DateTime.Now;
-            string ps = $"{dn.Day}_{dn.Month}_{dn.Year}_{dn.Hour}-{dn.Minute}.txt";
-            string resultPath = Path.Combine(basePath, ps);
-            File.WriteAllLines(resultPath, res);
-            File.WriteAllLines(logPath, GetArray(logList));
-        }
-
-        private static void PrintAnnotation(List<AnnotationItem> annotationList)
-        {
-            foreach (var item in annotationList)
-            {
-                Console.WriteLine(item.ToCsvString());
-            }
-        }
-
-        private static void WaitReaderConnection(BookProfile profile, ref List<DbFileDescription> pretendents)
-        {
-
-            while (!GetFilePath(profile, ref pretendents))
-            {
-                Console.Clear();
-                Console.WriteLine("Reader not found!");
-                System.Threading.Thread.Sleep(250);
-            }
-            System.Threading.Thread.Sleep(250);
-            Console.Clear();
-            Console.WriteLine("Reader ready for work, press any key!");
-            Console.ReadLine();
-        }
-
-        private static bool GetFilePath(BookProfile profile, ref List<DbFileDescription> dbPretendents)
-        {
-            DriveInfo[] allDrives = DriveInfo.GetDrives();
-            List<DriveInfo> pretendent = new List<DriveInfo>();
-
-            foreach (var d in allDrives)
-            {
-                if (File.Exists(Path.Combine(d.RootDirectory.FullName, profile.BookDbPath)))
-                {
-                    pretendent.Add(d);
-                }
-            }
-
-            if (pretendent.Count != 0)
-            {
-
-                foreach (var p in pretendent)
-                {
-                    dbPretendents.Add(new DbFileDescription
-                    {
-                        Drive = p,
-                        FilePath = Path.Combine(p.RootDirectory.FullName, profile.BookDbPath)
-                    });
-                }
-                //DriveInfo readerPretendent = pretendent.FirstOrDefault(p => p.VolumeLabel == profile.readerDriveLabel);
-                //reader = Path.Combine(readerPretendent.RootDirectory.FullName, profile.bookDbPath);
-
-                //DriveInfo cardPretendent = pretendent.FirstOrDefault(p => p.VolumeLabel != profile.readerDriveLabel);                
-                //card = Path.Combine(cardPretendent.RootDirectory.FullName, profile.bookDbPath);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private static string[] GetArray(List<string> logList)
-        {
-            string[] result = new string[logList.Count];
-            int i = 0;
-            foreach (var s in logList)
-            {
-                result[i] = s;
-                i++;
-            }
+            List<AnnotationItem> annotationItems = TBookConnector.GetAnnotations(profile);
+            List<string> exWord = File.ReadLines(@"C:/AllHarry/exWord.txt").ToList();
+            List<string> result = AnnotationImporter.Import(annotationItems, words, ref exWord);
+            File.WriteAllLines(@"C:\AllHarry\exWord.txt", exWord);
             return result;
         }
-
-        private static List<string> GetSource(List<AnnotationItem> sourceData, ref List<string> log)
-        {
-            List<string> result = new List<string>();
-            foreach (var s in sourceData)
-            {
-                var t = s.MarkedText.ToLower().Trim();
-
-                if (!result.Contains(t) && !log.Contains(t))
-                {
-                    result.Add(s.MarkedText);
-                    log.Add(t);
-                }
-            }
-            return result;
-        }
-    }
-
-    public class MenuMaster
-    {
-        private Dictionary<int, string> menuDict;
-
-        private int Result;
-
-        public MenuMaster(IEnumerable<string> menuVariants)
-        {
-            menuDict = new Dictionary<int, string>();
-            int i = 1;
-            foreach(string variant in menuVariants)
-            {
-                menuDict.Add(i, variant);
-                i++;
-            }
-        }
-
-        public string GetAnswer(string header = "", bool clear = false)
-        {
-            if (clear)
-                Console.Clear();
-
-            Console.WriteLine(header);
-            foreach(var variant in menuDict)
-            {
-                Console.WriteLine($"{variant.Key} - {variant.Value}");
-            }
-            Result = Int32.Parse(Console.ReadLine());
-
-            return Answer;
-        }
-
-        public string Answer
-        {
-            get
-            {
-                return menuDict.First(i => i.Key == Result).Value;
-            }
-        }
-
-
-    }
-}
+    } //класс
+}//пространство имён
